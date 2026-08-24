@@ -2,23 +2,52 @@
 // userData.muscleId matching a key in muscles.js; core body parts don't.
 import * as THREE from 'three';
 
-const MUSCLE_COLOR = 0x94343c;
-const CORE_COLOR = 0x1d1d24;
+const MUSCLE_COLOR = 0xb5473a;   // anatomical red
+const CORE_COLOR = 0xe9dfc6;     // bone / tendon cream
 
 const UP = new THREE.Vector3(0, 1, 0);
+
+// Grayscale striation texture — used as a bump map so muscle bellies
+// read as fiber bundles, like an anatomical illustration.
+let fiberBump = null;
+function getFiberBump() {
+  if (fiberBump) return fiberBump;
+  const c = document.createElement('canvas');
+  c.width = c.height = 256;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#808080';
+  ctx.fillRect(0, 0, 256, 256);
+  for (let i = 0; i < 140; i++) {
+    const x = Math.random() * 256;
+    const shade = 128 + (Math.random() - 0.5) * 110;
+    ctx.strokeStyle = `rgb(${shade | 0},${shade | 0},${shade | 0})`;
+    ctx.lineWidth = 0.6 + Math.random() * 1.8;
+    ctx.beginPath();
+    const wob = (Math.random() - 0.5) * 8;
+    ctx.moveTo(x, -8);
+    ctx.bezierCurveTo(x + wob, 64, x - wob, 192, x, 264);
+    ctx.stroke();
+  }
+  fiberBump = new THREE.CanvasTexture(c);
+  fiberBump.wrapS = fiberBump.wrapT = THREE.RepeatWrapping;
+  fiberBump.repeat.set(2, 1);
+  return fiberBump;
+}
 
 function muscleMaterial() {
   return new THREE.MeshStandardMaterial({
     color: MUSCLE_COLOR,
-    roughness: 0.48,
-    metalness: 0.06,
+    roughness: 0.55,
+    metalness: 0.02,
+    bumpMap: getFiberBump(),
+    bumpScale: 0.004,
   });
 }
 
 function coreMaterial() {
   return new THREE.MeshStandardMaterial({
     color: CORE_COLOR,
-    roughness: 0.85,
+    roughness: 0.8,
     metalness: 0.0,
   });
 }

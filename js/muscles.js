@@ -6,7 +6,8 @@ export const MUSCLES = {
     region: 'Neck & upper back',
     desc: 'A large, kite-shaped muscle spanning from the base of the skull down the middle of the back and out to the shoulder blades.',
     fn: 'Elevates, retracts, and depresses the scapula; supports the arm and extends the neck.',
-    exercises: ['Shrugs', 'Face pulls', 'Deadlifts', 'Farmer carries'],
+    bodyweight: ['Inverted rows', 'Pike shrugs', 'Wall handstand holds'],
+    weights: ['Shrugs', 'Face pulls', 'Deadlifts', 'Farmer carries'],
   },
   delts: {
     name: 'Deltoids',
@@ -14,7 +15,8 @@ export const MUSCLES = {
     region: 'Shoulder',
     desc: 'The rounded cap of the shoulder, made of three heads — anterior, lateral, and posterior — that wrap the shoulder joint.',
     fn: 'Abducts the arm; the front head flexes and internally rotates it, the rear head extends and externally rotates it.',
-    exercises: ['Overhead press', 'Lateral raises', 'Rear-delt flyes'],
+    bodyweight: ['Pike push-ups', 'Handstand push-ups', 'Wall walks'],
+    weights: ['Overhead press', 'Lateral raises', 'Rear-delt flyes'],
   },
   pecs: {
     name: 'Pectorals',
@@ -22,7 +24,8 @@ export const MUSCLES = {
     region: 'Chest',
     desc: 'The broad, fan-shaped muscle of the chest, running from the sternum and collarbone to the upper arm.',
     fn: 'Adducts and internally rotates the arm; presses the arms forward and together.',
-    exercises: ['Bench press', 'Push-ups', 'Dumbbell flyes', 'Dips'],
+    bodyweight: ['Push-ups', 'Dips', 'Archer push-ups', 'Pseudo-planche push-ups'],
+    weights: ['Bench press', 'Dumbbell flyes', 'Cable crossovers'],
   },
   biceps: {
     name: 'Biceps',
@@ -30,7 +33,8 @@ export const MUSCLES = {
     region: 'Front upper arm',
     desc: 'The two-headed muscle on the front of the upper arm, crossing both the shoulder and elbow joints.',
     fn: 'Flexes the elbow and supinates the forearm — turning the palm upward.',
-    exercises: ['Barbell curls', 'Chin-ups', 'Hammer curls'],
+    bodyweight: ['Chin-ups', 'Ring curls', 'Rope climbs'],
+    weights: ['Barbell curls', 'Hammer curls', 'Incline curls'],
   },
   triceps: {
     name: 'Triceps',
@@ -38,7 +42,8 @@ export const MUSCLES = {
     region: 'Back upper arm',
     desc: 'The three-headed muscle on the back of the upper arm — roughly two thirds of upper-arm mass.',
     fn: 'Extends the elbow, straightening the arm; the long head also assists shoulder extension.',
-    exercises: ['Dips', 'Close-grip bench', 'Cable pushdowns', 'Skullcrushers'],
+    bodyweight: ['Diamond push-ups', 'Bench dips', 'Bodyweight extensions'],
+    weights: ['Close-grip bench', 'Cable pushdowns', 'Skullcrushers'],
   },
   forearms: {
     name: 'Forearms',
@@ -46,7 +51,8 @@ export const MUSCLES = {
     region: 'Lower arm',
     desc: 'A dense bundle of nearly twenty muscles controlling the wrist, hand, and fingers.',
     fn: 'Flex and extend the wrist and fingers; drive grip strength and forearm rotation.',
-    exercises: ['Wrist curls', 'Dead hangs', 'Reverse curls', 'Grippers'],
+    bodyweight: ['Dead hangs', 'Towel hangs', 'Fingertip push-ups'],
+    weights: ['Wrist curls', 'Reverse curls', 'Grippers'],
   },
   abs: {
     name: 'Abdominals',
@@ -54,7 +60,8 @@ export const MUSCLES = {
     region: 'Core — front',
     desc: 'The paired, segmented "six-pack" muscle running vertically from ribcage to pelvis, divided by tendinous bands.',
     fn: 'Flexes the spine, compresses the abdomen, and stabilizes the trunk under load.',
-    exercises: ['Hanging leg raises', 'Cable crunches', 'Ab-wheel rollouts', 'Planks'],
+    bodyweight: ['Hanging leg raises', 'Planks', 'L-sits', 'Dragon flags'],
+    weights: ['Cable crunches', 'Ab-wheel rollouts', 'Weighted sit-ups'],
   },
   obliques: {
     name: 'Obliques',
@@ -62,7 +69,8 @@ export const MUSCLES = {
     region: 'Core — sides',
     desc: 'Layered sheets of muscle wrapping the sides of the waist, fibers running diagonally like crossed straps.',
     fn: 'Rotate and side-bend the trunk; brace the core against twisting forces.',
-    exercises: ['Russian twists', 'Side planks', 'Woodchoppers', 'Suitcase carries'],
+    bodyweight: ['Side planks', 'Windshield wipers', 'Hanging knee twists'],
+    weights: ['Woodchoppers', 'Suitcase carries', 'Weighted Russian twists'],
   },
   lats: {
     name: 'Lats',
@@ -70,7 +78,8 @@ export const MUSCLES = {
     region: 'Back',
     desc: 'The widest muscle of the body — broad wings sweeping from the lower spine up to the upper arm.',
     fn: 'Pulls the arm down and back; adducts, extends, and internally rotates the shoulder.',
-    exercises: ['Pull-ups', 'Lat pulldowns', 'Barbell rows'],
+    bodyweight: ['Pull-ups', 'Australian pull-ups', 'Front lever rows'],
+    weights: ['Lat pulldowns', 'Barbell rows', 'Dumbbell rows'],
   },
   lowback: {
     name: 'Lower back',
@@ -78,7 +87,8 @@ export const MUSCLES = {
     region: 'Back — spine',
     desc: 'Long columns of muscle running either side of the spine from the pelvis to the skull.',
     fn: 'Extends and straightens the spine; keeps the torso upright and braced during lifts.',
-    exercises: ['Deadlifts', 'Back extensions', 'Good mornings'],
+    bodyweight: ['Supermans', 'Bird dogs', 'Reverse hyperextensions'],
+    weights: ['Deadlifts', 'Back extensions', 'Good mornings'],
   },
   glutes: {
     name: 'Glutes',
@@ -86,7 +96,8 @@ export const MUSCLES = {
     region: 'Hip',
     desc: 'The largest muscle in the human body, forming the bulk of the buttock.',
     fn: 'Extends the hip — the primary driver in standing up, climbing, sprinting, and jumping.',
-    exercises: ['Hip thrusts', 'Squats', 'Romanian deadlifts', 'Lunges'],
+    bodyweight: ['Glute bridges', 'Single-leg hip thrusts', 'Step-ups'],
+    weights: ['Barbell hip thrusts', 'Squats', 'Romanian deadlifts'],
   },
   quads: {
     name: 'Quadriceps',
@@ -94,7 +105,8 @@ export const MUSCLES = {
     region: 'Front thigh',
     desc: 'The four-headed muscle group on the front of the thigh, converging into the patellar tendon.',
     fn: 'Extends the knee; the rectus femoris head also flexes the hip.',
-    exercises: ['Squats', 'Leg press', 'Bulgarian split squats', 'Leg extensions'],
+    bodyweight: ['Pistol squats', 'Bulgarian split squats', 'Wall sits', 'Sissy squats'],
+    weights: ['Squats', 'Leg press', 'Leg extensions'],
   },
   hams: {
     name: 'Hamstrings',
@@ -102,7 +114,8 @@ export const MUSCLES = {
     region: 'Back thigh',
     desc: 'Three long muscles down the back of the thigh, crossing both hip and knee.',
     fn: 'Flex the knee and extend the hip; decelerate the leg when sprinting.',
-    exercises: ['Romanian deadlifts', 'Leg curls', 'Nordic curls'],
+    bodyweight: ['Nordic curls', 'Sliding leg curls', 'Single-leg bridges'],
+    weights: ['Romanian deadlifts', 'Leg curls', 'Good mornings'],
   },
   calves: {
     name: 'Calves',
@@ -110,7 +123,8 @@ export const MUSCLES = {
     region: 'Lower leg',
     desc: 'The twin-bellied gastrocnemius over the deeper soleus, tapering into the Achilles tendon.',
     fn: 'Plantar-flex the ankle — pointing the foot to walk, run, and jump.',
-    exercises: ['Standing calf raises', 'Seated calf raises', 'Jump rope'],
+    bodyweight: ['Single-leg calf raises', 'Jump rope', 'Pogo hops'],
+    weights: ['Standing calf raises', 'Seated calf raises'],
   },
 };
 

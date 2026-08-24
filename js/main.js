@@ -1,12 +1,20 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { buildBody } from './body.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MUSCLES, MUSCLE_ORDER } from './muscles.js';
 
-const BASE = new THREE.Color(0xb5473a);      // anatomical red
-const DIMMED = new THREE.Color(0xdcbfae);    // faded flesh
-const SELECTED = new THREE.Color(0xd6402a);  // vivid red
+// Muscle palette (anatomical-plate look)
+const BASE = new THREE.Color(0xb5473a);
+const DIMMED = new THREE.Color(0xdcc0af);
+const SELECTED = new THREE.Color(0xd6402a);
 const GLOW = new THREE.Color(0xff5a2e);
+// Context parts
+const CTX = {
+  other: { base: new THREE.Color(0x8f382d), dim: new THREE.Color(0xd0af9f) },
+  tendon: { base: new THREE.Color(0xddd0ac), dim: new THREE.Color(0xe6ddc4) },
+  bones: { base: new THREE.Color(0xe8dfc6), dim: new THREE.Color(0xece5d2) },
+};
 
 // ---------- renderer / scene ----------
 const canvas = document.getElementById('scene');
@@ -24,12 +32,12 @@ const camera = new THREE.PerspectiveCamera(
   38, window.innerWidth / window.innerHeight, 0.1, 50);
 
 const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1.02, 0);
+controls.target.set(0, 0.95, 0);
 
 // Frame both figures whatever the aspect ratio — narrow screens
 // need the camera further back to fit the pair.
 {
-  const dist = Math.max(3.5, 4.2 / camera.aspect);
+  const dist = Math.max(3.4, 4.2 / camera.aspect);
   camera.position.copy(controls.target)
     .addScaledVector(new THREE.Vector3(0.24, 0.1, 0.97).normalize(), dist);
   controls.maxDistance = Math.max(7, dist + 1);
@@ -37,7 +45,7 @@ controls.target.set(0, 1.02, 0);
 
 controls.enableDamping = true;
 controls.dampingFactor = 0.07;
-controls.minDistance = 1.2;
+controls.minDistance = 0.6;
 controls.maxPolarAngle = Math.PI * 0.62;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.7;
@@ -72,20 +80,7 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-// ---------- figures: anterior + posterior pair, like an anatomy plate ----------
-const registry = {};   // muscleId -> meshes[] (both figures)
-const pickables = [];
-
-for (const [x, ry] of [[-0.42, 0], [0.42, Math.PI]]) {
-  const body = buildBody();
-  body.group.position.x = x;
-  body.group.rotation.y = ry;
-  scene.add(body.group);
-  pickables.push(...body.pickables);
-  for (const [id, meshes] of Object.entries(body.registry)) {
-    (registry[id] ||= []).push(...meshes);
-  }
-
+for (const x of [-0.42, 0.42]) {
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.5, 0.508, 96),
     new THREE.MeshBasicMaterial({ color: 0xd6c9ae, side: THREE.DoubleSide }));
@@ -94,28 +89,92 @@ for (const [x, ry] of [[-0.42, 0], [0.42, Math.PI]]) {
   scene.add(ring);
 }
 
+// ---------- anatomy model (Z-Anatomy, CC BY-SA 4.0) ----------
+const groupMats = {};   // muscleId -> shared material (both figures)
+const ctxMats = [];     // [{mat, base, dim}]
+const pickables = [];   // every mesh — occluders included, so rays respect cover
+let modelReady = false;
+
+const draco = new DRACOLoader();
+draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+const loader = new GLTFLoader();
+loader.setDRACOLoader(draco);
+
+const loadingEl = document.getElementById('loading');
+
+loader.load('assets/body.glb', (gltf) => {
+  const proto = gltf.scene;
+
+  // Assign one shared material per part, so tinting one id
+  // recolors it on both figures at once.
+  proto.traverse((o) => {
+    if (!o.isMesh) return;
+    // Importer splits multi-primitive nodes into "name_1", "name_2" children.
+    const name = (o.name || o.parent?.name || '').replace(/_\d+$/, '');
+    if (MUSCLES[name]) {
+      if (!groupMats[name]) {
+        groupMats[name] = new THREE.MeshStandardMaterial({
+          color: BASE, roughness: 0.55, metalness: 0.02,
+          side: THREE.DoubleSide,
+        });
+      }
+      o.material = groupMats[name];
+      o.userData.muscleId = name;
+    } else if (CTX[name]) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: CTX[name].base,
+        roughness: name === 'other' ? 0.55 : 0.75,
+        metalness: 0.0,
+        side: THREE.DoubleSide,
+      });
+      o.material = mat;
+      ctxMats.push({ mat, ...CTX[name] });
+    }
+    o.castShadow = true;
+  });
+
+  // Anterior + posterior pair, like an anatomy plate.
+  for (const [x, ry] of [[-0.42, 0], [0.42, Math.PI]]) {
+    const fig = proto.clone(true);
+    fig.position.x = x;
+    fig.rotation.y = ry;
+    scene.add(fig);
+    fig.traverse((o) => {
+      if (o.isMesh) pickables.push(o);
+    });
+  }
+
+  modelReady = true;
+  if (loadingEl) loadingEl.remove();
+  applyStyles();
+}, undefined, (err) => {
+  console.error('Model load failed', err);
+  if (loadingEl) loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
+});
+
 // ---------- selection / hover state ----------
 let selectedId = null;
 let hoveredId = null;
 
 function applyStyles() {
-  for (const [id, meshes] of Object.entries(registry)) {
-    for (const mesh of meshes) {
-      const m = mesh.material;
-      if (id === selectedId) {
-        m.color.copy(SELECTED);
-        m.emissive.copy(GLOW);
-        m.emissiveIntensity = 0.28;
-      } else if (id === hoveredId) {
-        m.color.copy(selectedId ? DIMMED : BASE).lerp(SELECTED, 0.5);
-        m.emissive.copy(GLOW);
-        m.emissiveIntensity = 0.1;
-      } else {
-        m.color.copy(selectedId ? DIMMED : BASE);
-        m.emissive.setScalar(0);
-        m.emissiveIntensity = 0;
-      }
+  if (!modelReady) return;
+  for (const [id, m] of Object.entries(groupMats)) {
+    if (id === selectedId) {
+      m.color.copy(SELECTED);
+      m.emissive.copy(GLOW);
+      m.emissiveIntensity = 0.25;
+    } else if (id === hoveredId) {
+      m.color.copy(selectedId ? DIMMED : BASE).lerp(SELECTED, 0.5);
+      m.emissive.copy(GLOW);
+      m.emissiveIntensity = 0.1;
+    } else {
+      m.color.copy(selectedId ? DIMMED : BASE);
+      m.emissive.setScalar(0);
+      m.emissiveIntensity = 0;
     }
+  }
+  for (const c of ctxMats) {
+    c.mat.color.copy(selectedId ? c.dim : c.base);
   }
 }
 
@@ -168,7 +227,7 @@ function pick(clientX, clientY) {
     -((clientY - r.top) / r.height) * 2 + 1);
   raycaster.setFromCamera(pointer, camera);
   const hits = raycaster.intersectObjects(pickables, false);
-  return hits.length ? hits[0].object.userData.muscleId : null;
+  return hits.length ? (hits[0].object.userData.muscleId ?? null) : null;
 }
 
 let downPos = null;
@@ -209,8 +268,6 @@ function fitViewport() {
     renderer.setSize(w, h, false);
   }
 }
-
-applyStyles();
 
 renderer.setAnimationLoop(() => {
   fitViewport();

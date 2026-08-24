@@ -1,10 +1,10 @@
 :root {
-  --bg: #101014;
-  --ink: #ece8e2;
-  --ink-dim: #96908a;
-  --accent: #ffab4a;
-  --panel: rgba(22, 22, 27, 0.86);
-  --line: rgba(236, 232, 226, 0.12);
+  --bg: #f5f1e8;
+  --ink: #26201a;
+  --ink-dim: #8d8375;
+  --accent: #c03a28;
+  --panel: rgba(252, 250, 244, 0.88);
+  --line: rgba(38, 32, 26, 0.14);
   --display: "Archivo", "Arial Narrow", sans-serif;
   --mono: "Spline Sans Mono", "SF Mono", Menlo, monospace;
 }

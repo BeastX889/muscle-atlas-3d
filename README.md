@@ -14,9 +14,15 @@ train it.
   [BodyParts3D](https://lifesciencedb.jp/bp3d/)): ~500 individual
   muscles merged into 14 selectable groups, plus the remaining
   musculature, tendinous structures, and full skeleton as context.
-- **System tabs** — Muscles, Skeleton, Nerves (brain, spinal cord, and
-  peripheral nerves over a ghost skeleton), and Tendons & Fascia (the
-  deep fascia envelope, septa, sheaths, and tendinous structures).
+- **Five system tabs**, each with its own named, clickable structures:
+  Muscles (14 groups), Skeleton (11), Nerves (19 — from the cerebrum and
+  brainstem down to the sciatic and fibular nerves), Tendons (11 tendons
+  and ligament groups), and Fascia (14 sheets, aponeuroses, and
+  retinacula).
+- **X-ray context** — bone is drawn see-through on the nerve, tendon,
+  and fascia tabs, so structures inside it (the brain in the skull, the
+  cruciates in the knee) are visible rather than buried; on the fascia
+  tab the unpicked sleeves turn to glass around a selection.
 - **Click to learn** — occlusion-aware picking; an anatomy card with
   Latin name, region, function, and exercise lists (bodyweight &
   calisthenics first, then weighted).

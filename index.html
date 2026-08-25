@@ -10,11 +10,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Spline+Sans+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <!-- Three.js and the Draco decoder are served from this repo, not a CDN:
+       a blocked or slow third-party host would otherwise leave the page
+       with its interface but no anatomy. -->
   <script type="importmap">
     {
       "imports": {
-        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        "three": "./vendor/three/build/three.module.js",
+        "three/addons/": "./vendor/three/examples/jsm/"
       }
     }
   </script>
@@ -49,6 +52,8 @@
 
     <div id="loading">Loading anatomy&hellip;</div>
 
+    <button class="view-reset" id="viewReset" title="Reset the camera">Reset view</button>
+
     <a class="credit" href="https://www.z-anatomy.com/" target="_blank" rel="noopener">
       Model: Z-Anatomy / BodyParts3D &middot; CC BY-SA
     </a>
@@ -60,5 +65,17 @@
     </footer>
   </div>
   <script type="module" src="js/main.js"></script>
+  <script>
+    // If the 3D engine or the model never arrives, say so rather than
+    // leaving an empty scene behind the interface.
+    setTimeout(function () {
+      var el = document.getElementById('loading');
+      if (!el || window.__atlasReady) return;
+      el.classList.add('stalled');
+      el.textContent = window.__atlasProgress
+        ? 'Still loading the model — slow connection?'
+        : 'The 3D engine could not start. Try a reload, or a different browser.';
+    }, 20000);
+  </script>
 </body>
 </html>

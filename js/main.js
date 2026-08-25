@@ -74,27 +74,87 @@ const camera = new THREE.PerspectiveCamera(
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
 
-// Frame both figures whatever the aspect ratio — narrow screens need
-// the camera further back to fit the pair. Runs on the first VALID
-// viewport size (a zero-sized initial layout would poison the math).
-let framed = false;
-function frameCamera(aspect) {
-  const a = isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
-  const dist = Math.max(3.4, 4.2 / a);
-  camera.position.copy(controls.target)
-    .addScaledVector(new THREE.Vector3(0.24, 0.1, 0.97).normalize(), dist);
-  controls.maxDistance = Math.max(7, dist + 1);
-  framed = true;
+const VIEW_DIR = new THREE.Vector3(0.24, 0.1, 0.97).normalize();
+// Fraction of the frame the figures should occupy at rest, and how far
+// down the frame to bias them so the heads clear the title and tabs.
+const FILL_H = 0.90;
+const FILL_W = 0.94;
+const DROP = 0.03;
+
+// Bounds of the loaded pair, filled in once the model arrives.
+const modelBox = new THREE.Box3();
+const fallbackBox = new THREE.Box3(
+  new THREE.Vector3(-0.68, 0.0, -0.22), new THREE.Vector3(0.68, 1.71, 0.22));
+let userMoved = false;
+
+// Fraction of the viewport the box covers, as [width, height] in 0..1.
+const _v = new THREE.Vector3();
+function projectedExtent(box) {
+  camera.updateMatrixWorld(true);
+  camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
+  camera.updateProjectionMatrix();
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  for (const x of [box.min.x, box.max.x]) {
+    for (const y of [box.min.y, box.max.y]) {
+      for (const z of [box.min.z, box.max.z]) {
+        _v.set(x, y, z).project(camera);
+        minX = Math.min(minX, _v.x); maxX = Math.max(maxX, _v.x);
+        minY = Math.min(minY, _v.y); maxY = Math.max(maxY, _v.y);
+      }
+    }
+  }
+  return [(maxX - minX) / 2, (maxY - minY) / 2];
 }
-frameCamera(camera.aspect);
-if (!(window.innerWidth > 0 && window.innerHeight > 0)) framed = false;
+
+// Frame the pair from its REAL bounds. The analytic distance is only a
+// starting guess — the view is tilted, so the true projected extent is
+// measured and the distance corrected until the figures fill the frame.
+function frameCamera() {
+  const real = modelBox.isEmpty() ? fallbackBox : modelBox;
+  const size = real.getSize(new THREE.Vector3());
+  const center = real.getCenter(new THREE.Vector3());
+  const aspect = isFinite(camera.aspect) && camera.aspect > 0
+    ? camera.aspect : 16 / 9;
+
+  // Fit against a yaw-invariant proxy — a box circumscribing the pair's
+  // turning circle. Fitting the raw bounds would frame only the current
+  // angle, and auto-rotation would then push feet out of frame.
+  const r = Math.hypot(size.x / 2, size.z / 2);
+  const box = new THREE.Box3(
+    new THREE.Vector3(center.x - r, real.min.y, center.z - r),
+    new THREE.Vector3(center.x + r, real.max.y, center.z + r));
+
+  const vFov = THREE.MathUtils.degToRad(camera.fov);
+  const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+  let dist = Math.max((size.y / 2) / Math.tan(vFov / 2),
+                      (size.x / 2) / Math.tan(hFov / 2)) + size.z / 2;
+
+  controls.target.copy(center);
+  for (let i = 0; i < 4; i++) {
+    camera.position.copy(center).addScaledVector(VIEW_DIR, dist);
+    const [w, h] = projectedExtent(box);
+    const over = Math.max(w / FILL_W, h / FILL_H);
+    if (!isFinite(over) || over <= 0) break;
+    if (Math.abs(over - 1) < 0.005) break;
+    dist *= over;
+  }
+  // Aim above the model's centre so it sits lower in the frame, clear of
+  // the title and tab bar; the camera follows, so the fit is unchanged.
+  const drop = DROP * 2 * dist * Math.tan(vFov / 2);
+  controls.target.set(center.x, center.y + drop, center.z);
+  camera.position.copy(controls.target).addScaledVector(VIEW_DIR, dist);
+
+  controls.minDistance = 0.35;
+  controls.maxDistance = dist * 2.4;
+  controls.update();
+}
 
 controls.enableDamping = true;
 controls.dampingFactor = 0.07;
-controls.minDistance = 0.6;
 controls.maxPolarAngle = Math.PI * 0.62;
 controls.autoRotate = true;
 controls.autoRotateSpeed = 0.7;
+frameCamera();
 
 // ---------- lights ----------
 scene.add(new THREE.HemisphereLight(0x8b93a6, 0x1a1216, 0.85));
@@ -126,7 +186,11 @@ ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
 
-for (const x of [-0.42, 0.42]) {
+// Half the gap between the two figures — tight enough that the pair
+// reads as one plate without the arms touching.
+const FIG_X = 0.34;
+
+for (const x of [-FIG_X, FIG_X]) {
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.5, 0.508, 96),
     new THREE.MeshBasicMaterial({ color: 0x3a3a44, side: THREE.DoubleSide }));
@@ -188,11 +252,13 @@ loader.load('assets/body.glb', (gltf) => {
   });
 
   // Anterior + posterior pair, like an anatomy plate.
-  for (const [x, ry] of [[-0.42, 0], [0.42, Math.PI]]) {
+  for (const [x, ry] of [[-FIG_X, 0], [FIG_X, Math.PI]]) {
     const fig = proto.clone(true);
     fig.position.x = x;
     fig.rotation.y = ry;
     scene.add(fig);
+    fig.updateWorldMatrix(true, true);
+    modelBox.expandByObject(fig);
     fig.traverse((o) => {
       if (!o.isMesh) return;
       pickables.push(o);
@@ -204,6 +270,7 @@ loader.load('assets/body.glb', (gltf) => {
   modelReady = true;
   if (loadingEl) loadingEl.remove();
   setSystem(currentSystem);
+  if (!userMoved) frameCamera();
 }, undefined, (err) => {
   console.error('Model load failed', err);
   if (loadingEl) loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
@@ -363,8 +430,11 @@ function pick(clientX, clientY) {
 let downPos = null;
 canvas.addEventListener('pointerdown', (e) => {
   controls.autoRotate = false;
+  userMoved = true;
   downPos = [e.clientX, e.clientY];
 });
+
+canvas.addEventListener('wheel', () => { userMoved = true; }, { passive: true });
 
 canvas.addEventListener('pointerup', (e) => {
   if (!downPos) return;
@@ -397,8 +467,9 @@ function fitViewport() {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
+    // Re-fit on a viewport change until the viewer takes over the camera.
+    if (!userMoved) frameCamera();
   }
-  if (!framed) frameCamera(w / h);
 }
 
 document.body.dataset.system = 'muscles';

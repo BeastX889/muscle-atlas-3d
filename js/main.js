@@ -88,8 +88,13 @@ const fallbackBox = new THREE.Box3(
 let userMoved = false;
 
 // Fraction of the viewport the box covers, as [width, height] in 0..1.
+// The camera must be AIMED at `at` first: measuring with a stale
+// orientation (auto-rotation, or a drag the viewer made) reads a box
+// that is off-frame and sends the fitted distance to infinity.
 const _v = new THREE.Vector3();
-function projectedExtent(box) {
+function projectedExtent(box, at) {
+  camera.up.set(0, 1, 0);
+  camera.lookAt(at);
   camera.updateMatrixWorld(true);
   camera.matrixWorldInverse.copy(camera.matrixWorld).invert();
   camera.updateProjectionMatrix();
@@ -129,20 +134,29 @@ function frameCamera() {
   let dist = Math.max((size.y / 2) / Math.tan(vFov / 2),
                       (size.x / 2) / Math.tan(hFov / 2)) + size.z / 2;
 
+  const startDist = dist;
   controls.target.copy(center);
   for (let i = 0; i < 4; i++) {
     camera.position.copy(center).addScaledVector(VIEW_DIR, dist);
-    const [w, h] = projectedExtent(box);
+    const [w, h] = projectedExtent(box, center);
     const over = Math.max(w / FILL_W, h / FILL_H);
     if (!isFinite(over) || over <= 0) break;
     if (Math.abs(over - 1) < 0.005) break;
     dist *= over;
   }
+  // The analytic estimate is a sound bound by itself, so never let a
+  // measurement carry the camera far from it — a wild value would park
+  // the camera in the fog with nothing on screen.
+  if (!isFinite(dist) || dist <= 0) dist = startDist;
+  dist = Math.min(Math.max(dist, startDist * 0.6), startDist * 1.8);
+
   // Aim above the model's centre so it sits lower in the frame, clear of
   // the title and tab bar; the camera follows, so the fit is unchanged.
   const drop = DROP * 2 * dist * Math.tan(vFov / 2);
   controls.target.set(center.x, center.y + drop, center.z);
   camera.position.copy(controls.target).addScaledVector(VIEW_DIR, dist);
+  camera.up.set(0, 1, 0);
+  camera.lookAt(controls.target);
 
   controls.minDistance = 0.35;
   controls.maxDistance = dist * 2.4;
@@ -208,7 +222,7 @@ const pickables = [];   // every mesh, so rays respect occlusion
 let modelReady = false;
 
 const draco = new DRACOLoader();
-draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+draco.setDecoderPath('./vendor/three/examples/jsm/libs/draco/gltf/');
 const loader = new GLTFLoader();
 loader.setDRACOLoader(draco);
 
@@ -223,6 +237,7 @@ function isPartId(name) {
 }
 
 loader.load('assets/body.glb', (gltf) => {
+  window.__atlasReady = true;
   const proto = gltf.scene;
 
   // One shared material per part, so a tint change hits both figures.
@@ -271,9 +286,17 @@ loader.load('assets/body.glb', (gltf) => {
   if (loadingEl) loadingEl.remove();
   setSystem(currentSystem);
   if (!userMoved) frameCamera();
-}, undefined, (err) => {
+}, (evt) => {
+  if (!loadingEl || !evt.total) return;
+  window.__atlasProgress = true;
+  loadingEl.textContent =
+    `Loading anatomy… ${Math.round((evt.loaded / evt.total) * 100)}%`;
+}, (err) => {
   console.error('Model load failed', err);
-  if (loadingEl) loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
+  if (loadingEl) {
+    loadingEl.classList.add('stalled');
+    loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
+  }
 });
 
 // ---------- selection / hover state ----------
@@ -475,6 +498,12 @@ function fitViewport() {
 document.body.dataset.system = 'muscles';
 tabButtons.muscles.classList.add('active');
 buildList();
+
+document.getElementById('viewReset').addEventListener('click', () => {
+  userMoved = false;
+  controls.autoRotate = true;
+  frameCamera();
+});
 
 renderer.setAnimationLoop(() => {
   fitViewport();

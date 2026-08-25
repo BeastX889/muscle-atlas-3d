@@ -3,38 +3,54 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MUSCLES, MUSCLE_ORDER } from './muscles.js';
+import { SKELETON, SKELETON_ORDER, NERVES, NERVES_ORDER,
+         FASCIA, FASCIA_ORDER } from './systems.js';
 
-// Muscle group palette (dark ecorche look)
-const BASE = new THREE.Color(0x94343c);
-const DIMMED = new THREE.Color(0x45262c);
-const SELECTED = new THREE.Color(0xc4484e);
-const GLOW = new THREE.Color(0xff8c2e);
-
-// Context colors on the Muscles tab: [base, dimmed-while-selection]
-const MUSCLE_CTX = {
-  other: [0x5a241d, 0x331c17],
-  tendon: [0x2e2e36, 0x25252b],
-  bones: [0x222229, 0x1b1b21],
+// ---------- system definitions ----------
+const SYSTEM_DATA = {
+  muscles: { label: 'Muscles', parts: MUSCLES, order: MUSCLE_ORDER },
+  skeleton: { label: 'Skeleton', parts: SKELETON, order: SKELETON_ORDER },
+  nerves: { label: 'Nerves', parts: NERVES, order: NERVES_ORDER },
+  fascia: { label: 'Tendons & Fascia', parts: FASCIA, order: FASCIA_ORDER },
 };
 
-// Which mesh kinds each system tab shows, and their colors there.
-// 'group' stands for the 14 selectable muscle groups.
-const SYSTEMS = {
+function systemOf(id) {
+  if (id.startsWith('sk_')) return 'skeleton';
+  if (id.startsWith('nv_')) return 'nerves';
+  if (id.startsWith('fs_')) return 'fascia';
+  return 'muscles';
+}
+
+// Selection palette of each system when its tab is active.
+const ACTIVE_PAL = {
+  muscles: { base: 0x94343c, dim: 0x45262c, sel: 0xc4484e, glow: 0xff8c2e, glowInt: 0.5 },
+  skeleton: { base: 0xd6cbb2, dim: 0x554f42, sel: 0xf2e7c6, glow: 0xff8c2e, glowInt: 0.35 },
+  nerves: { base: 0xe8d894, dim: 0x5a5340, sel: 0xffe9a0, glow: 0xff9e36, glowInt: 0.9 },
+  fascia: { base: 0xa89e8c, dim: 0x413d37, sel: 0xd8cdb4, glow: 0xff8c2e, glowInt: 0.4 },
+};
+const NERVE_EMISSIVE = 0xb09a52;
+
+// What each tab shows: which systems' groups, which context kinds,
+// and their [base, dimmed-while-selection] colors.
+const TABS = {
   muscles: {
-    label: 'Muscles',
-    kinds: { group: 0x94343c, other: 0x5a241d, tendon: 0x2e2e36, bones: 0x222229 },
+    groups: ['muscles', 'skeleton'],
+    ctx: { other: [0x5a241d, 0x331c17], tendon: [0x2e2e36, 0x25252b], bones: [0x222229, 0x1b1b21] },
+    ghostBone: [0x222229, 0x1b1b21],
   },
   skeleton: {
-    label: 'Skeleton',
-    kinds: { bones: 0xd6cbb2 },
+    groups: ['skeleton'],
+    ctx: { bones: [0xd6cbb2, 0x554f42] },
   },
   nerves: {
-    label: 'Nerves',
-    kinds: { nerves: 0xe8d894, bones: 0x2c2c36 },
+    groups: ['nerves', 'skeleton'],
+    ctx: { nerves: [0xe8d894, 0x5a5340], bones: [0x2c2c36, 0x24242c] },
+    ghostBone: [0x2c2c36, 0x24242c],
   },
   fascia: {
-    label: 'Tendons & Fascia',
-    kinds: { tendon: 0xcdbf9d, fascia: 0x8d8577, bones: 0x2c2c36 },
+    groups: ['fascia', 'skeleton'],
+    ctx: { fascia: [0x8d8577, 0x3d3a34], tendon: [0xcdbf9d, 0x4e4839], bones: [0x2c2c36, 0x24242c] },
+    ghostBone: [0x2c2c36, 0x24242c],
   },
 };
 
@@ -120,10 +136,11 @@ for (const x of [-0.42, 0.42]) {
 }
 
 // ---------- anatomy model (Z-Anatomy, CC BY-SA 4.0) ----------
-const groupMats = {};                 // muscleId -> shared material
-const kindMats = {};                  // kind -> [materials]
-const kindMeshes = {};                // kind -> [meshes, both figures]
-const pickables = [];                 // every mesh, so rays respect occlusion
+const groupMats = {};   // partId -> shared material (both figures)
+const groupMeshes = {}; // partId -> meshes
+const kindMats = {};    // context kind -> [materials]
+const kindMeshes = {};  // context kind -> [meshes]
+const pickables = [];   // every mesh, so rays respect occlusion
 let modelReady = false;
 
 const draco = new DRACOLoader();
@@ -132,6 +149,14 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(draco);
 
 const loadingEl = document.getElementById('loading');
+const CTX_KINDS = ['other', 'tendon', 'bones', 'fascia', 'nerves'];
+
+function isPartId(name) {
+  for (const sys of Object.values(SYSTEM_DATA)) {
+    if (sys.parts[name]) return true;
+  }
+  return false;
+}
 
 loader.load('assets/body.glb', (gltf) => {
   const proto = gltf.scene;
@@ -141,18 +166,16 @@ loader.load('assets/body.glb', (gltf) => {
     if (!o.isMesh) return;
     // Importer splits multi-primitive nodes into "name_1", "name_2" children.
     const name = (o.name || o.parent?.name || '').replace(/_\d+$/, '');
-    if (MUSCLES[name]) {
+    if (isPartId(name)) {
       if (!groupMats[name]) {
         groupMats[name] = new THREE.MeshStandardMaterial({
-          color: BASE, roughness: 0.55, metalness: 0.02,
+          color: 0x808080, roughness: 0.55, metalness: 0.02,
           side: THREE.DoubleSide,
         });
       }
       o.material = groupMats[name];
-      o.userData.muscleId = name;
-      o.userData.kind = 'group';
-    } else if (SYSTEMS.muscles.kinds[name] !== undefined ||
-               name === 'fascia' || name === 'nerves') {
+      o.userData.partId = name;
+    } else if (CTX_KINDS.includes(name)) {
       const mat = new THREE.MeshStandardMaterial({
         color: 0x808080, roughness: name === 'other' ? 0.55 : 0.7,
         metalness: 0.0, side: THREE.DoubleSide,
@@ -173,12 +196,12 @@ loader.load('assets/body.glb', (gltf) => {
     fig.traverse((o) => {
       if (!o.isMesh) return;
       pickables.push(o);
-      if (o.userData.kind) (kindMeshes[o.userData.kind] ||= []).push(o);
+      if (o.userData.partId) (groupMeshes[o.userData.partId] ||= []).push(o);
+      else if (o.userData.kind) (kindMeshes[o.userData.kind] ||= []).push(o);
     });
   }
 
   modelReady = true;
-  window.__atlas = { groupMats, kindMats, kindMeshes, pickables, scene, camera };
   if (loadingEl) loadingEl.remove();
   setSystem(currentSystem);
 }, undefined, (err) => {
@@ -186,12 +209,61 @@ loader.load('assets/body.glb', (gltf) => {
   if (loadingEl) loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
 });
 
-// ---------- system tabs ----------
+// ---------- selection / hover state ----------
 let currentSystem = 'muscles';
+let selectedId = null;
+let hoveredId = null;
+
+function applyStyles() {
+  if (!modelReady) return;
+  const tab = TABS[currentSystem];
+
+  for (const [id, m] of Object.entries(groupMats)) {
+    const sys = systemOf(id);
+    m.emissive.setScalar(0);
+    m.emissiveIntensity = 0;
+    if (sys === currentSystem) {
+      const pal = ACTIVE_PAL[sys];
+      if (id === selectedId) {
+        m.color.setHex(pal.sel);
+        m.emissive.setHex(pal.glow);
+        m.emissiveIntensity = pal.glowInt;
+      } else if (id === hoveredId) {
+        m.color.setHex(selectedId ? pal.dim : pal.base);
+        m.color.lerp(new THREE.Color(pal.sel), 0.4);
+        m.emissive.setHex(pal.glow);
+        m.emissiveIntensity = 0.14;
+      } else {
+        m.color.setHex(selectedId ? pal.dim : pal.base);
+        if (sys === 'nerves') {
+          m.emissive.setHex(NERVE_EMISSIVE);
+          m.emissiveIntensity = selectedId ? 0.15 : 0.9;
+        }
+      }
+    } else if (sys === 'skeleton' && tab.ghostBone) {
+      m.color.setHex(selectedId ? tab.ghostBone[1] : tab.ghostBone[0]);
+    }
+  }
+
+  for (const [kind, pair] of Object.entries(tab.ctx)) {
+    for (const m of (kindMats[kind] || [])) {
+      m.color.setHex(selectedId ? pair[1] : pair[0]);
+      if (kind === 'nerves' && currentSystem === 'nerves') {
+        m.emissive.setHex(NERVE_EMISSIVE);
+        m.emissiveIntensity = selectedId ? 0.15 : 0.9;
+      } else {
+        m.emissive.setScalar(0);
+        m.emissiveIntensity = 0;
+      }
+    }
+  }
+}
+
+// ---------- system tabs ----------
 const tabsEl = document.getElementById('systemTabs');
 const tabButtons = {};
 
-for (const [sys, def] of Object.entries(SYSTEMS)) {
+for (const [sys, def] of Object.entries(SYSTEM_DATA)) {
   const btn = document.createElement('button');
   btn.textContent = def.label;
   btn.addEventListener('click', () => setSystem(sys));
@@ -205,68 +277,40 @@ function setSystem(sys) {
   for (const [s, btn] of Object.entries(tabButtons)) {
     btn.classList.toggle('active', s === sys);
   }
-  if (sys !== 'muscles' && selectedId) select(null);
+  select(null);
+  buildList();
   if (!modelReady) return;
 
-  const kinds = SYSTEMS[sys].kinds;
-  for (const [kind, meshes] of Object.entries(kindMeshes)) {
-    const visible = kinds[kind] !== undefined;
+  const tab = TABS[sys];
+  for (const [id, meshes] of Object.entries(groupMeshes)) {
+    const visible = tab.groups.includes(systemOf(id));
     for (const m of meshes) m.visible = visible;
   }
-  for (const [kind, mats] of Object.entries(kindMats)) {
-    if (kinds[kind] === undefined) continue;
-    for (const m of mats) m.color.setHex(kinds[kind]);
-  }
-  // Thin nerve tubes catch little light — give them a soft glow.
-  for (const m of (kindMats.nerves || [])) {
-    m.emissive.setHex(0xb09a52);
-    m.emissiveIntensity = sys === 'nerves' ? 0.9 : 0;
+  for (const [kind, meshes] of Object.entries(kindMeshes)) {
+    const visible = tab.ctx[kind] !== undefined;
+    for (const m of meshes) m.visible = visible;
   }
   applyStyles();
 }
 
-// ---------- selection / hover state ----------
-let selectedId = null;
-let hoveredId = null;
-
-function applyStyles() {
-  if (!modelReady) return;
-  for (const [id, m] of Object.entries(groupMats)) {
-    if (id === selectedId) {
-      m.color.copy(SELECTED);
-      m.emissive.copy(GLOW);
-      m.emissiveIntensity = 0.5;
-    } else if (id === hoveredId) {
-      m.color.copy(selectedId ? DIMMED : BASE).lerp(SELECTED, 0.4);
-      m.emissive.copy(GLOW);
-      m.emissiveIntensity = 0.14;
-    } else {
-      m.color.copy(selectedId ? DIMMED : BASE);
-      m.emissive.setScalar(0);
-      m.emissiveIntensity = 0;
-    }
-  }
-  // Context parts dim while a muscle is selected (Muscles tab only).
-  if (currentSystem === 'muscles') {
-    for (const [kind, [base, dim]] of Object.entries(MUSCLE_CTX)) {
-      for (const m of (kindMats[kind] || [])) {
-        m.color.setHex(selectedId ? dim : base);
-      }
-    }
-  }
-}
-
-// ---------- muscle list + info card ----------
+// ---------- part list + info card ----------
 const listEl = document.getElementById('muscleList');
 const card = document.getElementById('infoCard');
-const listButtons = {};
+let listButtons = {};
 
-for (const id of MUSCLE_ORDER) {
-  const btn = document.createElement('button');
-  btn.innerHTML = `<span class="tick"></span>${MUSCLES[id].name}`;
-  btn.addEventListener('click', () => select(selectedId === id ? null : id));
-  listEl.appendChild(btn);
-  listButtons[id] = btn;
+function buildList() {
+  const def = SYSTEM_DATA[currentSystem];
+  listEl.innerHTML = '';
+  listButtons = {};
+  for (const id of def.order) {
+    // skip parts that didn't make it into the model
+    if (modelReady && !groupMats[id]) continue;
+    const btn = document.createElement('button');
+    btn.innerHTML = `<span class="tick"></span>${def.parts[id].name}`;
+    btn.addEventListener('click', () => select(selectedId === id ? null : id));
+    listEl.appendChild(btn);
+    listButtons[id] = btn;
+  }
 }
 
 document.getElementById('infoClose').addEventListener('click', () => select(null));
@@ -274,23 +318,26 @@ document.getElementById('infoClose').addEventListener('click', () => select(null
 function select(id) {
   selectedId = id;
   applyStyles();
-  for (const [mid, btn] of Object.entries(listButtons)) {
-    btn.classList.toggle('active', mid === id);
+  for (const [pid, btn] of Object.entries(listButtons)) {
+    btn.classList.toggle('active', pid === id);
   }
   if (!id) {
     card.hidden = true;
     return;
   }
-  const m = MUSCLES[id];
+  const m = SYSTEM_DATA[currentSystem].parts[id];
   document.getElementById('infoRegion').textContent = m.region;
   document.getElementById('infoName').textContent = m.name;
   document.getElementById('infoLatin').textContent = m.latin;
   document.getElementById('infoDesc').textContent = m.desc;
   document.getElementById('infoFn').textContent = m.fn;
+  const hasEx = !!m.bodyweight;
+  document.getElementById('bwHead').hidden = !hasEx;
+  document.getElementById('wtHead').hidden = !hasEx;
   document.getElementById('infoBodyweight').innerHTML =
-    m.bodyweight.map((e) => `<li>${e}</li>`).join('');
+    hasEx ? m.bodyweight.map((e) => `<li>${e}</li>`).join('') : '';
   document.getElementById('infoWeights').innerHTML =
-    m.weights.map((e) => `<li>${e}</li>`).join('');
+    hasEx ? m.weights.map((e) => `<li>${e}</li>`).join('') : '';
   card.hidden = false;
 }
 
@@ -299,14 +346,18 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 function pick(clientX, clientY) {
-  if (currentSystem !== 'muscles') return null;
   const r = canvas.getBoundingClientRect();
   pointer.set(
     ((clientX - r.left) / r.width) * 2 - 1,
     -((clientY - r.top) / r.height) * 2 + 1);
   raycaster.setFromCamera(pointer, camera);
-  const hits = raycaster.intersectObjects(pickables, false);
-  return hits.length ? (hits[0].object.userData.muscleId ?? null) : null;
+  for (const hit of raycaster.intersectObjects(pickables, false)) {
+    if (!hit.object.visible) continue;
+    const id = hit.object.userData.partId;
+    // only parts of the active system are selectable; anything else occludes
+    return (id && systemOf(id) === currentSystem) ? id : null;
+  }
+  return null;
 }
 
 let downPos = null;
@@ -320,7 +371,6 @@ canvas.addEventListener('pointerup', (e) => {
   const moved = Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1]);
   downPos = null;
   if (moved > 6) return;
-  if (currentSystem !== 'muscles') return;
   const id = pick(e.clientX, e.clientY);
   select(id === selectedId ? null : id);
 });
@@ -353,6 +403,7 @@ function fitViewport() {
 
 document.body.dataset.system = 'muscles';
 tabButtons.muscles.classList.add('active');
+buildList();
 
 renderer.setAnimationLoop(() => {
   fitViewport();

@@ -4,19 +4,21 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MUSCLES, MUSCLE_ORDER } from './muscles.js';
 import { SKELETON, SKELETON_ORDER, NERVES, NERVES_ORDER,
-         FASCIA, FASCIA_ORDER } from './systems.js';
+         TENDONS, TENDONS_ORDER, FASCIA, FASCIA_ORDER } from './systems.js';
 
 // ---------- system definitions ----------
 const SYSTEM_DATA = {
   muscles: { label: 'Muscles', parts: MUSCLES, order: MUSCLE_ORDER },
   skeleton: { label: 'Skeleton', parts: SKELETON, order: SKELETON_ORDER },
   nerves: { label: 'Nerves', parts: NERVES, order: NERVES_ORDER },
-  fascia: { label: 'Tendons & Fascia', parts: FASCIA, order: FASCIA_ORDER },
+  tendons: { label: 'Tendons', parts: TENDONS, order: TENDONS_ORDER },
+  fascia: { label: 'Fascia', parts: FASCIA, order: FASCIA_ORDER },
 };
 
 function systemOf(id) {
   if (id.startsWith('sk_')) return 'skeleton';
   if (id.startsWith('nv_')) return 'nerves';
+  if (id.startsWith('td_')) return 'tendons';
   if (id.startsWith('fs_')) return 'fascia';
   return 'muscles';
 }
@@ -26,33 +28,68 @@ const ACTIVE_PAL = {
   muscles: { base: 0x94343c, dim: 0x45262c, sel: 0xc4484e, glow: 0xff8c2e, glowInt: 0.5 },
   skeleton: { base: 0xd6cbb2, dim: 0x554f42, sel: 0xf2e7c6, glow: 0xff8c2e, glowInt: 0.35 },
   nerves: { base: 0xe8d894, dim: 0x5a5340, sel: 0xffe9a0, glow: 0xff9e36, glowInt: 0.9 },
-  fascia: { base: 0xa89e8c, dim: 0x413d37, sel: 0xd8cdb4, glow: 0xff8c2e, glowInt: 0.4 },
+  tendons: { base: 0xd9cba6, dim: 0x4e4839, sel: 0xf4e6bd, glow: 0xff8c2e, glowInt: 0.4 },
+  fascia: { base: 0xb3a894, dim: 0x413d37, sel: 0xe0d5bb, glow: 0xff8c2e, glowInt: 0.4 },
 };
 const NERVE_EMISSIVE = 0xb09a52;
 
-// What each tab shows: which systems' groups, which context kinds,
-// and their [base, dimmed-while-selection] colors.
+// Per tab: `ghost` are other systems' groups drawn as dim context,
+// `ctx` are the unnamed leftover buckets. Both give
+// [base, dimmed-while-something-is-selected] colors. Anything not
+// listed is hidden on that tab.
+const GHOST_BONE = [0x2c2c36, 0x24242c];
 const TABS = {
   muscles: {
-    groups: ['muscles', 'skeleton'],
-    ctx: { other: [0x5a241d, 0x331c17], tendon: [0x2e2e36, 0x25252b], bones: [0x222229, 0x1b1b21] },
-    ghostBone: [0x222229, 0x1b1b21],
+    ghost: { skeleton: [0x222229, 0x1b1b21], tendons: [0x2e2e36, 0x25252b] },
+    ctx: {
+      other: [0x5a241d, 0x331c17],
+      tendon: [0x2e2e36, 0x25252b],
+      ligaments: [0x2e2e36, 0x25252b],
+      bones: [0x222229, 0x1b1b21],
+    },
   },
   skeleton: {
-    groups: ['skeleton'],
+    ghost: {},
     ctx: { bones: [0xd6cbb2, 0x554f42] },
   },
+  // xray: layers rendered see-through, so structures inside them (the
+  // brain in the skull, the cruciates in the knee) are not just hidden.
   nerves: {
-    groups: ['nerves', 'skeleton'],
-    ctx: { nerves: [0xe8d894, 0x5a5340], bones: [0x2c2c36, 0x24242c] },
-    ghostBone: [0x2c2c36, 0x24242c],
+    ghost: { skeleton: GHOST_BONE },
+    ctx: { nerves: [0xe8d894, 0x5a5340], bones: GHOST_BONE },
+    xray: ['skeleton', 'bones'],
+  },
+  tendons: {
+    ghost: { skeleton: GHOST_BONE },
+    ctx: {
+      tendon: [0xcdbf9d, 0x4e4839],
+      ligaments: [0xc9bb98, 0x4a4536],
+      bones: GHOST_BONE,
+    },
+    xray: ['skeleton', 'bones'],
   },
   fascia: {
-    groups: ['fascia', 'skeleton'],
-    ctx: { fascia: [0x8d8577, 0x3d3a34], tendon: [0xcdbf9d, 0x4e4839], bones: [0x2c2c36, 0x24242c] },
-    ghostBone: [0x2c2c36, 0x24242c],
+    ghost: { skeleton: GHOST_BONE },
+    ctx: { fascia: [0x8d8577, 0x3d3a34], bones: GHOST_BONE },
+    xray: ['skeleton', 'bones'],
+    // Fascia sleeves wrap the whole body and each other, so a pick would
+    // otherwise be buried: drop the general sheet and turn the unpicked
+    // sleeves to glass.
+    fadeOnSelect: ['fascia'],
+    focus: 0.16,
   },
 };
+
+// Apply see-through settings to one material.
+function setGlass(m, mode) {
+  const want = mode !== null;
+  if (m.transparent !== want) {
+    m.transparent = want;
+    m.needsUpdate = true;
+  }
+  m.opacity = want ? mode : 1;
+  m.depthWrite = !want;
+}
 
 // ---------- renderer / scene ----------
 const canvas = document.getElementById('scene');
@@ -227,7 +264,7 @@ const loader = new GLTFLoader();
 loader.setDRACOLoader(draco);
 
 const loadingEl = document.getElementById('loading');
-const CTX_KINDS = ['other', 'tendon', 'bones', 'fascia', 'nerves'];
+const CTX_KINDS = ['other', 'tendon', 'ligaments', 'bones', 'fascia', 'nerves'];
 
 function isPartId(name) {
   for (const sys of Object.values(SYSTEM_DATA)) {
@@ -330,8 +367,11 @@ function applyStyles() {
           m.emissiveIntensity = selectedId ? 0.15 : 0.9;
         }
       }
-    } else if (sys === 'skeleton' && tab.ghostBone) {
-      m.color.setHex(selectedId ? tab.ghostBone[1] : tab.ghostBone[0]);
+      setGlass(m, (tab.focus && selectedId && id !== selectedId) ? tab.focus : null);
+    } else if (tab.ghost[sys]) {
+      const g = tab.ghost[sys];
+      m.color.setHex(selectedId ? g[1] : g[0]);
+      setGlass(m, tab.xray?.includes(sys) ? 0.24 : null);
     }
   }
 
@@ -345,6 +385,15 @@ function applyStyles() {
         m.emissive.setScalar(0);
         m.emissiveIntensity = 0;
       }
+      setGlass(m, tab.xray?.includes(kind) ? 0.24 : null);
+    }
+  }
+
+  // The whole-body sheet gets out of the way once one structure is
+  // picked out of it — faded it still washes the selection out.
+  for (const kind of (tab.fadeOnSelect || [])) {
+    for (const mesh of (kindMeshes[kind] || [])) {
+      mesh.visible = !selectedId;
     }
   }
 }
@@ -373,7 +422,8 @@ function setSystem(sys) {
 
   const tab = TABS[sys];
   for (const [id, meshes] of Object.entries(groupMeshes)) {
-    const visible = tab.groups.includes(systemOf(id));
+    const s = systemOf(id);
+    const visible = s === sys || tab.ghost[s] !== undefined;
     for (const m of meshes) m.visible = visible;
   }
   for (const [kind, meshes] of Object.entries(kindMeshes)) {
@@ -421,6 +471,11 @@ function select(id) {
   document.getElementById('infoLatin').textContent = m.latin;
   document.getElementById('infoDesc').textContent = m.desc;
   document.getElementById('infoFn').textContent = m.fn;
+  const hasNote = !!m.note;
+  document.getElementById('noteHead').hidden = !hasNote;
+  const noteEl = document.getElementById('infoNote');
+  noteEl.hidden = !hasNote;
+  noteEl.textContent = m.note ?? '';
   const hasEx = !!m.bodyweight;
   document.getElementById('bwHead').hidden = !hasEx;
   document.getElementById('wtHead').hidden = !hasEx;
@@ -443,6 +498,8 @@ function pick(clientX, clientY) {
   raycaster.setFromCamera(pointer, camera);
   for (const hit of raycaster.intersectObjects(pickables, false)) {
     if (!hit.object.visible) continue;
+    // see-through layers let the ray pass, the way they let the eye pass
+    if (hit.object.material?.transparent) continue;
     const id = hit.object.userData.partId;
     // only parts of the active system are selectable; anything else occludes
     return (id && systemOf(id) === currentSystem) ? id : null;

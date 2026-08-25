@@ -4,29 +4,53 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { MUSCLES, MUSCLE_ORDER } from './muscles.js';
 
-// Muscle palette (anatomical-plate look)
-const BASE = new THREE.Color(0xb5473a);
-const DIMMED = new THREE.Color(0xdcc0af);
-const SELECTED = new THREE.Color(0xd6402a);
-const GLOW = new THREE.Color(0xff5a2e);
-// Context parts
-const CTX = {
-  other: { base: new THREE.Color(0x8f382d), dim: new THREE.Color(0xd0af9f) },
-  tendon: { base: new THREE.Color(0xddd0ac), dim: new THREE.Color(0xe6ddc4) },
-  bones: { base: new THREE.Color(0xe8dfc6), dim: new THREE.Color(0xece5d2) },
+// Muscle group palette (dark ecorche look)
+const BASE = new THREE.Color(0x94343c);
+const DIMMED = new THREE.Color(0x45262c);
+const SELECTED = new THREE.Color(0xc4484e);
+const GLOW = new THREE.Color(0xff8c2e);
+
+// Context colors on the Muscles tab: [base, dimmed-while-selection]
+const MUSCLE_CTX = {
+  other: [0x5a241d, 0x331c17],
+  tendon: [0x2e2e36, 0x25252b],
+  bones: [0x222229, 0x1b1b21],
+};
+
+// Which mesh kinds each system tab shows, and their colors there.
+// 'group' stands for the 14 selectable muscle groups.
+const SYSTEMS = {
+  muscles: {
+    label: 'Muscles',
+    kinds: { group: 0x94343c, other: 0x5a241d, tendon: 0x2e2e36, bones: 0x222229 },
+  },
+  skeleton: {
+    label: 'Skeleton',
+    kinds: { bones: 0xd6cbb2 },
+  },
+  nerves: {
+    label: 'Nerves',
+    kinds: { nerves: 0xe8d894, bones: 0x2c2c36 },
+  },
+  fascia: {
+    label: 'Tendons & Fascia',
+    kinds: { tendon: 0xcdbf9d, fascia: 0x8d8577, bones: 0x2c2c36 },
+  },
 };
 
 // ---------- renderer / scene ----------
 const canvas = document.getElementById('scene');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(window.innerWidth, window.innerHeight);
+// updateStyle=false — CSS owns the canvas layout size; an inline style
+// stamped from a not-yet-laid-out window would stick at 0px.
+renderer.setSize(window.innerWidth, window.innerHeight, false);
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf5f1e8);
-scene.fog = new THREE.Fog(0xf5f1e8, 7, 16);
+scene.background = new THREE.Color(0x101014);
+scene.fog = new THREE.Fog(0x101014, 7, 16);
 
 const camera = new THREE.PerspectiveCamera(
   38, window.innerWidth / window.innerHeight, 0.1, 50);
@@ -34,14 +58,20 @@ const camera = new THREE.PerspectiveCamera(
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 0.95, 0);
 
-// Frame both figures whatever the aspect ratio — narrow screens
-// need the camera further back to fit the pair.
-{
-  const dist = Math.max(3.4, 4.2 / camera.aspect);
+// Frame both figures whatever the aspect ratio — narrow screens need
+// the camera further back to fit the pair. Runs on the first VALID
+// viewport size (a zero-sized initial layout would poison the math).
+let framed = false;
+function frameCamera(aspect) {
+  const a = isFinite(aspect) && aspect > 0 ? aspect : 16 / 9;
+  const dist = Math.max(3.4, 4.2 / a);
   camera.position.copy(controls.target)
     .addScaledVector(new THREE.Vector3(0.24, 0.1, 0.97).normalize(), dist);
   controls.maxDistance = Math.max(7, dist + 1);
+  framed = true;
 }
+frameCamera(camera.aspect);
+if (!(window.innerWidth > 0 && window.innerHeight > 0)) framed = false;
 
 controls.enableDamping = true;
 controls.dampingFactor = 0.07;
@@ -51,9 +81,9 @@ controls.autoRotate = true;
 controls.autoRotateSpeed = 0.7;
 
 // ---------- lights ----------
-scene.add(new THREE.HemisphereLight(0xffffff, 0xd6c9b2, 1.0));
+scene.add(new THREE.HemisphereLight(0x8b93a6, 0x1a1216, 0.85));
 
-const key = new THREE.DirectionalLight(0xfff4e2, 2.0);
+const key = new THREE.DirectionalLight(0xfff1e0, 2.4);
 key.position.set(2.4, 3.4, 2.4);
 key.castShadow = true;
 key.shadow.mapSize.set(2048, 2048);
@@ -64,18 +94,18 @@ key.shadow.camera.bottom = -0.5;
 key.shadow.bias = -0.002;
 scene.add(key);
 
-const rim = new THREE.DirectionalLight(0xc4d2f0, 0.6);
+const rim = new THREE.DirectionalLight(0x6a7dff, 1.1);
 rim.position.set(-2.5, 1.8, -2.6);
 scene.add(rim);
 
-const fill = new THREE.DirectionalLight(0xffe0c4, 0.35);
+const fill = new THREE.DirectionalLight(0xff9d5c, 0.4);
 fill.position.set(-1.5, 0.6, 2.5);
 scene.add(fill);
 
 // ---------- ground ----------
 const ground = new THREE.Mesh(
   new THREE.CircleGeometry(6, 64),
-  new THREE.MeshStandardMaterial({ color: 0xefe8da, roughness: 0.95 }));
+  new THREE.MeshStandardMaterial({ color: 0x141419, roughness: 0.95 }));
 ground.rotation.x = -Math.PI / 2;
 ground.receiveShadow = true;
 scene.add(ground);
@@ -83,16 +113,17 @@ scene.add(ground);
 for (const x of [-0.42, 0.42]) {
   const ring = new THREE.Mesh(
     new THREE.RingGeometry(0.5, 0.508, 96),
-    new THREE.MeshBasicMaterial({ color: 0xd6c9ae, side: THREE.DoubleSide }));
+    new THREE.MeshBasicMaterial({ color: 0x3a3a44, side: THREE.DoubleSide }));
   ring.rotation.x = -Math.PI / 2;
   ring.position.set(x, 0.002, 0);
   scene.add(ring);
 }
 
 // ---------- anatomy model (Z-Anatomy, CC BY-SA 4.0) ----------
-const groupMats = {};   // muscleId -> shared material (both figures)
-const ctxMats = [];     // [{mat, base, dim}]
-const pickables = [];   // every mesh — occluders included, so rays respect cover
+const groupMats = {};                 // muscleId -> shared material
+const kindMats = {};                  // kind -> [materials]
+const kindMeshes = {};                // kind -> [meshes, both figures]
+const pickables = [];                 // every mesh, so rays respect occlusion
 let modelReady = false;
 
 const draco = new DRACOLoader();
@@ -105,8 +136,7 @@ const loadingEl = document.getElementById('loading');
 loader.load('assets/body.glb', (gltf) => {
   const proto = gltf.scene;
 
-  // Assign one shared material per part, so tinting one id
-  // recolors it on both figures at once.
+  // One shared material per part, so a tint change hits both figures.
   proto.traverse((o) => {
     if (!o.isMesh) return;
     // Importer splits multi-primitive nodes into "name_1", "name_2" children.
@@ -120,15 +150,16 @@ loader.load('assets/body.glb', (gltf) => {
       }
       o.material = groupMats[name];
       o.userData.muscleId = name;
-    } else if (CTX[name]) {
+      o.userData.kind = 'group';
+    } else if (SYSTEMS.muscles.kinds[name] !== undefined ||
+               name === 'fascia' || name === 'nerves') {
       const mat = new THREE.MeshStandardMaterial({
-        color: CTX[name].base,
-        roughness: name === 'other' ? 0.55 : 0.75,
-        metalness: 0.0,
-        side: THREE.DoubleSide,
+        color: 0x808080, roughness: name === 'other' ? 0.55 : 0.7,
+        metalness: 0.0, side: THREE.DoubleSide,
       });
       o.material = mat;
-      ctxMats.push({ mat, ...CTX[name] });
+      o.userData.kind = name;
+      (kindMats[name] ||= []).push(mat);
     }
     o.castShadow = true;
   });
@@ -140,17 +171,59 @@ loader.load('assets/body.glb', (gltf) => {
     fig.rotation.y = ry;
     scene.add(fig);
     fig.traverse((o) => {
-      if (o.isMesh) pickables.push(o);
+      if (!o.isMesh) return;
+      pickables.push(o);
+      if (o.userData.kind) (kindMeshes[o.userData.kind] ||= []).push(o);
     });
   }
 
   modelReady = true;
+  window.__atlas = { groupMats, kindMats, kindMeshes, pickables, scene, camera };
   if (loadingEl) loadingEl.remove();
-  applyStyles();
+  setSystem(currentSystem);
 }, undefined, (err) => {
   console.error('Model load failed', err);
   if (loadingEl) loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
 });
+
+// ---------- system tabs ----------
+let currentSystem = 'muscles';
+const tabsEl = document.getElementById('systemTabs');
+const tabButtons = {};
+
+for (const [sys, def] of Object.entries(SYSTEMS)) {
+  const btn = document.createElement('button');
+  btn.textContent = def.label;
+  btn.addEventListener('click', () => setSystem(sys));
+  tabsEl.appendChild(btn);
+  tabButtons[sys] = btn;
+}
+
+function setSystem(sys) {
+  currentSystem = sys;
+  document.body.dataset.system = sys;
+  for (const [s, btn] of Object.entries(tabButtons)) {
+    btn.classList.toggle('active', s === sys);
+  }
+  if (sys !== 'muscles' && selectedId) select(null);
+  if (!modelReady) return;
+
+  const kinds = SYSTEMS[sys].kinds;
+  for (const [kind, meshes] of Object.entries(kindMeshes)) {
+    const visible = kinds[kind] !== undefined;
+    for (const m of meshes) m.visible = visible;
+  }
+  for (const [kind, mats] of Object.entries(kindMats)) {
+    if (kinds[kind] === undefined) continue;
+    for (const m of mats) m.color.setHex(kinds[kind]);
+  }
+  // Thin nerve tubes catch little light — give them a soft glow.
+  for (const m of (kindMats.nerves || [])) {
+    m.emissive.setHex(0xb09a52);
+    m.emissiveIntensity = sys === 'nerves' ? 0.9 : 0;
+  }
+  applyStyles();
+}
 
 // ---------- selection / hover state ----------
 let selectedId = null;
@@ -162,23 +235,28 @@ function applyStyles() {
     if (id === selectedId) {
       m.color.copy(SELECTED);
       m.emissive.copy(GLOW);
-      m.emissiveIntensity = 0.25;
+      m.emissiveIntensity = 0.5;
     } else if (id === hoveredId) {
-      m.color.copy(selectedId ? DIMMED : BASE).lerp(SELECTED, 0.5);
+      m.color.copy(selectedId ? DIMMED : BASE).lerp(SELECTED, 0.4);
       m.emissive.copy(GLOW);
-      m.emissiveIntensity = 0.1;
+      m.emissiveIntensity = 0.14;
     } else {
       m.color.copy(selectedId ? DIMMED : BASE);
       m.emissive.setScalar(0);
       m.emissiveIntensity = 0;
     }
   }
-  for (const c of ctxMats) {
-    c.mat.color.copy(selectedId ? c.dim : c.base);
+  // Context parts dim while a muscle is selected (Muscles tab only).
+  if (currentSystem === 'muscles') {
+    for (const [kind, [base, dim]] of Object.entries(MUSCLE_CTX)) {
+      for (const m of (kindMats[kind] || [])) {
+        m.color.setHex(selectedId ? dim : base);
+      }
+    }
   }
 }
 
-// ---------- UI ----------
+// ---------- muscle list + info card ----------
 const listEl = document.getElementById('muscleList');
 const card = document.getElementById('infoCard');
 const listButtons = {};
@@ -221,6 +299,7 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 function pick(clientX, clientY) {
+  if (currentSystem !== 'muscles') return null;
   const r = canvas.getBoundingClientRect();
   pointer.set(
     ((clientX - r.left) / r.width) * 2 - 1,
@@ -241,6 +320,7 @@ canvas.addEventListener('pointerup', (e) => {
   const moved = Math.hypot(e.clientX - downPos[0], e.clientY - downPos[1]);
   downPos = null;
   if (moved > 6) return;
+  if (currentSystem !== 'muscles') return;
   const id = pick(e.clientX, e.clientY);
   select(id === selectedId ? null : id);
 });
@@ -261,13 +341,18 @@ canvas.addEventListener('pointermove', (e) => {
 function fitViewport() {
   const w = canvas.clientWidth;
   const h = canvas.clientHeight;
+  if (!(w > 0 && h > 0)) return;
   if (canvas.width !== Math.floor(w * renderer.getPixelRatio()) ||
       canvas.height !== Math.floor(h * renderer.getPixelRatio())) {
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
   }
+  if (!framed) frameCamera(w / h);
 }
+
+document.body.dataset.system = 'muscles';
+tabButtons.muscles.classList.add('active');
 
 renderer.setAnimationLoop(() => {
   fitViewport();

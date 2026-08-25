@@ -14,6 +14,9 @@ train it.
   [BodyParts3D](https://lifesciencedb.jp/bp3d/)): ~500 individual
   muscles merged into 14 selectable groups, plus the remaining
   musculature, tendinous structures, and full skeleton as context.
+- **System tabs** — Muscles, Skeleton, Nerves (brain, spinal cord, and
+  peripheral nerves over a ghost skeleton), and Tendons & Fascia (the
+  deep fascia envelope, septa, sheaths, and tendinous structures).
 - **Click to learn** — occlusion-aware picking; an anatomy card with
   Latin name, region, function, and exercise lists (bodyweight &
   calisthenics first, then weighted).

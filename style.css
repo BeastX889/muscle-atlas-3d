@@ -1,10 +1,10 @@
 :root {
-  --bg: #f5f1e8;
-  --ink: #26201a;
-  --ink-dim: #8d8375;
-  --accent: #c03a28;
-  --panel: rgba(252, 250, 244, 0.88);
-  --line: rgba(38, 32, 26, 0.14);
+  --bg: #101014;
+  --ink: #ece8e2;
+  --ink-dim: #96908a;
+  --accent: #ffab4a;
+  --panel: rgba(22, 22, 27, 0.86);
+  --line: rgba(236, 232, 226, 0.12);
   --display: "Archivo", "Arial Narrow", sans-serif;
   --mono: "Spline Sans Mono", "SF Mono", Menlo, monospace;
 }
@@ -52,6 +52,41 @@ body {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--ink-dim);
+}
+
+/* ---- system tabs ---- */
+.system-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 22px;
+  pointer-events: auto;
+}
+
+.system-tabs button {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.system-tabs button:hover { color: var(--ink); }
+
+.system-tabs button.active {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+body:not([data-system="muscles"]) .muscle-list,
+body:not([data-system="muscles"]) .info-card {
+  display: none;
 }
 
 /* ---- muscle list ---- */

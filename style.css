@@ -84,10 +84,6 @@ body {
   border-color: var(--accent);
 }
 
-body:not([data-system="muscles"]) .muscle-list,
-body:not([data-system="muscles"]) .info-card {
-  display: none;
-}
 
 /* ---- muscle list ---- */
 .muscle-list {

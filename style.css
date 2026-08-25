@@ -257,6 +257,36 @@ body {
   50% { opacity: 1; }
 }
 
+#loading.stalled {
+  animation: none;
+  opacity: 1;
+  max-width: 24em;
+  text-align: center;
+  line-height: 1.7;
+}
+
+.view-reset {
+  position: absolute;
+  right: clamp(16px, 3vw, 48px);
+  bottom: clamp(64px, 9vh, 96px);
+  appearance: none;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  cursor: pointer;
+  z-index: 3;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.view-reset:hover { color: var(--ink); border-color: var(--ink-dim); }
+
+/* the info card shares this corner — get out of its way */
+body:has(.info-card:not([hidden])) .view-reset { display: none; }
+
 .credit {
   position: absolute;
   right: clamp(16px, 3vw, 48px);
@@ -318,4 +348,26 @@ body {
   }
 
   .hints span:not(:last-child) { display: none; }
+  .hints { padding: 6px 16px; bottom: 18px; }
+
+  /* stack the corner chrome instead of letting it collide */
+  .credit {
+    top: auto;
+    bottom: 2px;
+    left: 8px;
+    right: 8px;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.08em;
+  }
+
+  .muscle-list { bottom: 52px; }
+
+  .view-reset {
+    bottom: auto;
+    top: clamp(20px, 4vh, 44px);
+    right: 8px;
+    font-size: 10px;
+    padding: 5px 9px;
+  }
 }

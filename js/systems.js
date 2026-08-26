@@ -10,6 +10,7 @@ export const SKELETON = {
     desc: 'Twenty-two bones — most locked together at jagged sutures — plus the jaw and thirty-two teeth. The mandible is the only skull bone that moves freely.',
     fn: 'Encases the brain, frames the face and airways, and anchors the chewing muscles.',
     note: 'The sutures stay slightly mobile for life; in infants they are still open as fontanelles, letting the head deform during birth and the brain triple in volume.',
+    sport: "The central risk in striking sports. A knockout is rotational acceleration of the brain inside the skull, and the cumulative load — including the subconcussive shots taken in sparring — is what links boxing and MMA to chronic traumatic encephalopathy. Orbital floor blowouts, nasal fractures and mandible fractures are the common bony injuries.",
   },
   sk_spine: {
     name: 'Spine',
@@ -18,6 +19,7 @@ export const SKELETON = {
     desc: 'Thirty-three vertebrae — 7 cervical, 12 thoracic, 5 lumbar, then the fused sacrum and coccyx — stacked on twenty-three shock-absorbing discs.',
     fn: 'Carries the trunk, protects the spinal cord, and lets you bend and twist.',
     note: 'Its double S-curve is what makes upright walking cheap: the curves act as a leaf spring, cutting the jolt that reaches your skull with every heel strike.',
+    sport: "The neck absorbs slams, spikes and cranks. Wrestlers bridge on it deliberately; a suplex landing on the head is the mechanism behind catastrophic cervical injury. Chronic disc disease in the neck is common in career grapplers.",
   },
   sk_ribs: {
     name: 'Rib cage',
@@ -26,6 +28,7 @@ export const SKELETON = {
     desc: 'Twelve pairs of ribs meeting the sternum through springy costal cartilage. The lowest two pairs float, anchored only at the spine.',
     fn: 'Shields the heart and lungs, and moves with every breath.',
     note: 'Breathing in swings the ribs up and out like a bucket handle, widening the chest in two directions at once.',
+    sport: "Body shots, knees and being stacked crack ribs and, more often, separate the costal cartilage. Cartilage injuries barely show on X-ray, hurt with every breath, and can take three months to settle — a fight-camp killer.",
   },
   sk_shoulder: {
     name: 'Shoulder girdle',
@@ -34,6 +37,7 @@ export const SKELETON = {
     desc: 'Clavicle and scapula. The collarbone is the only bony strut tying the arm to the trunk; the shoulder blade simply floats on muscle over the rib cage.',
     fn: 'Suspends the arm and gives the shoulder its enormous range.',
     note: 'That floating arrangement buys mobility at the cost of stability — which is why the shoulder is the most frequently dislocated joint in the body.',
+    sport: "Landing on the point of the shoulder separates the AC joint; landing on an outstretched arm breaks the clavicle. Both are standard judo and wrestling injuries from being thrown.",
   },
   sk_arm: {
     name: 'Humerus',
@@ -42,6 +46,7 @@ export const SKELETON = {
     desc: 'The long bone of the upper arm: a ball joint with the scapula above, a hinge with the forearm below.',
     fn: 'The lever behind every press, pull, and throw.',
     note: 'The radial nerve spirals directly against its shaft, so a mid-shaft fracture classically causes wrist drop.',
+    sport: "Rarely broken, but a fully applied armbar or kimura on a resisting athlete can spiral-fracture the shaft. The radial nerve wraps the bone, so such a break can leave a temporary wrist drop.",
   },
   sk_forearm: {
     name: 'Radius & ulna',
@@ -50,6 +55,7 @@ export const SKELETON = {
     desc: 'Paired bones joined along their length by an interosseous membrane. The radius crosses over the ulna when the palm turns down.',
     fn: 'Hinge at the elbow and rotate the hand through pronation and supination.',
     note: 'A fall on an outstretched hand most often breaks the radius just above the wrist — the Colles fracture, among the commonest breaks in people over fifty.',
+    sport: "The blocking bone. Checking hard kicks and covering up bruises the ulna, and a direct blow on a raised guard can crack it — the nightstick fracture.",
   },
   sk_hand: {
     name: 'Hand bones',
@@ -58,6 +64,7 @@ export const SKELETON = {
     desc: 'Twenty-seven bones per hand: eight carpals in two rows, five metacarpals, and fourteen phalanges.',
     fn: 'A chain of small joints trading raw power for precision.',
     note: 'A quarter of all the bones in your body are in your two hands — the anatomical price of a truly opposable thumb.',
+    sport: "The boxer's fracture — a broken neck of the fifth metacarpal — comes from punching with a poorly aligned fist. Hand injuries are the most frequent injury in professional boxing, which is what hand wraps and glove padding exist to reduce.",
   },
   sk_pelvis: {
     name: 'Pelvis',
@@ -66,6 +73,7 @@ export const SKELETON = {
     desc: 'Two hip bones — each a fusion of ilium, ischium, and pubis — closing the ring with the sacrum behind.',
     fn: 'Funnels the trunk’s weight into the legs and anchors the hip muscles.',
     note: 'The three bones fuse only in the mid-teens; before that they remain joined by a Y-shaped cartilage inside the hip socket.',
+    sport: "Takes hip-pointer contusions from mat and cage impacts. In teenage athletes, an explosive sprint or kick can avulse the bony attachment where a hip flexor or hamstring pulls.",
   },
   sk_femur: {
     name: 'Femur & patella',
@@ -74,6 +82,7 @@ export const SKELETON = {
     desc: 'The longest and strongest bone in the body, angled inward from hip to knee, plus the kneecap riding inside the quadriceps tendon.',
     fn: 'Carries you through every stride; the patella boosts the quadriceps’ leverage.',
     note: 'The patella is a sesamoid — a bone grown inside a tendon — and it increases the quadriceps’ pull on the shin by up to half.',
+    sport: "Almost never broken in sport — it takes a car-crash level of force. The vulnerable parts are the kneecap, which can dislocate laterally during a twisting scramble, and the femoral head's cartilage.",
   },
   sk_leg: {
     name: 'Tibia & fibula',
@@ -82,6 +91,7 @@ export const SKELETON = {
     desc: 'The weight-bearing shin bone and the slender fibula beside it, splinted together by an interosseous membrane.',
     fn: 'The tibia carries the load; the fibula anchors muscle and braces the ankle.',
     note: 'The fibula bears almost no body weight, which is why surgeons harvest lengths of it to rebuild jaws and other bones elsewhere.',
+    sport: "The most infamous fracture in MMA: a low kick met by a raised shin can snap the kicker's tibia and fibula. Shin conditioning thickens the bone over years, but the mechanics of a mistimed check are unforgiving.",
   },
   sk_foot: {
     name: 'Foot bones',
@@ -90,6 +100,7 @@ export const SKELETON = {
     desc: 'Twenty-six bones per foot — seven tarsals, five metatarsals, fourteen phalanges — arranged into three arches.',
     fn: 'Absorbs landing forces and turns each step into an elastic push-off.',
     note: 'The arches store and return roughly a sixth of the energy of every running stride, working like a spring under the foot.',
+    sport: "Kicking with the instep instead of the shin breaks metatarsals. Toes get jammed and dislocated on mats and in the cage — 'mat toe' is a chronic nuisance for grapplers.",
   },
 };
 
@@ -106,6 +117,7 @@ export const NERVES = {
     desc: 'The folded outer brain — two hemispheres of cortex divided into frontal, parietal, temporal, and occipital lobes, wrapped in three membranes.',
     fn: 'Handles thought, language, planning, voluntary movement, and conscious sensation.',
     note: 'Its folding packs about 2,000 cm² of cortex into the skull; roughly two thirds of that surface is hidden down inside the grooves.',
+    sport: "Repeated blows to the head damage the cortex over a career, not just in the knockouts. CTE — first described in boxers as dementia pugilistica — is associated with the cumulative number of blows absorbed rather than the number of diagnosed concussions, which is why sparring volume is now managed as carefully as fights.",
   },
   nv_deepbrain: {
     name: 'Deep brain structures',
@@ -114,6 +126,7 @@ export const NERVES = {
     desc: 'Thalamus, hypothalamus, basal ganglia, hippocampus, corpus callosum, and the fluid-filled ventricles beneath the cortex.',
     fn: 'Relay and gate all incoming sensation, tune movement, drive appetite and body clock, and lay down memory.',
     note: 'Almost every sense routes through the thalamus before reaching the cortex — smell is the one exception, going straight to the forebrain.',
+    sport: "Rotational impacts shear long white-matter tracts, and the corpus callosum is among the first structures to show change on imaging in career fighters. Damage here produces the slowed processing and memory problems seen before any outward symptoms appear.",
   },
   nv_cerebellum: {
     name: 'Cerebellum',
@@ -122,6 +135,7 @@ export const NERVES = {
     desc: 'The tightly pleated "little brain" tucked beneath the back of the cerebrum.',
     fn: 'Times and smooths movement, maintains balance, and stores motor skills.',
     note: 'It is about a tenth of the brain by volume yet holds over half its neurons — the densest wiring in the nervous system.',
+    sport: "The slurred speech, tremor and unsteady walk of the classic 'punch-drunk' syndrome are cerebellar. Balance loss immediately after a hard shot is this system briefly failing.",
   },
   nv_brainstem: {
     name: 'Brainstem',
@@ -130,6 +144,7 @@ export const NERVES = {
     desc: 'Midbrain, pons, and medulla oblongata — the stalk connecting brain to spinal cord, and the origin of most cranial nerves.',
     fn: 'Runs breathing, heart rate, blood pressure, swallowing, and consciousness itself.',
     note: 'The motor tracts cross sides here, in the pyramids of the medulla — which is why one hemisphere controls the opposite half of the body.',
+    sport: "A knockout is a transient disruption of the brainstem's arousal system — which is why consciousness switches off instantly and returns within seconds. The stiff-arm 'fencing response' seen after some knockouts is a brainstem reflex, and a reliable sign that the impact was significant.",
   },
   nv_cord: {
     name: 'Spinal cord',
@@ -138,6 +153,7 @@ export const NERVES = {
     desc: 'A cable about as thick as a finger running down the vertebral canal, giving off 31 pairs of spinal nerves and ending near the first lumbar vertebra in the cauda equina.',
     fn: 'Carries traffic between brain and body, and runs reflexes without consulting the brain.',
     note: 'Because the cord stops well above the end of the spine, a lumbar puncture below that level meets only floating nerve roots, which drift aside from the needle.',
+    sport: "Spearing head-first or being spiked on the head can cause cervical cord neurapraxia — a temporary burning paralysis of all four limbs that resolves in minutes to hours, but demands imaging and a hard look at technique before returning.",
   },
   nv_optic: {
     name: 'Visual pathway',
@@ -146,6 +162,7 @@ export const NERVES = {
     desc: 'The optic nerves, their crossing at the chiasm, and the tracts running back toward the brain.',
     fn: 'Carries sight from the retina to the visual cortex.',
     note: 'At the chiasm only the inner half of each nerve crosses, so each side of the brain receives the opposite half of the visual world rather than one whole eye.',
+    sport: "Boxers carry a well-documented risk of retinal detachment and traumatic cataract from repeated blows to the eye, which is why licensing bodies require regular eye examinations. Eye pokes in MMA cause corneal abrasions and can end fights outright.",
   },
   nv_trigeminal: {
     name: 'Trigeminal nerve',
@@ -154,6 +171,7 @@ export const NERVES = {
     desc: 'The largest cranial nerve, splitting into ophthalmic, maxillary, and mandibular divisions across the face.',
     fn: 'Supplies all facial sensation and drives the chewing muscles.',
     note: 'It is the nerve a dentist blocks before working on the lower teeth — and the one that misfires in trigeminal neuralgia, causing stabbing facial pain.',
+    sport: "An orbital floor fracture typically leaves numbness of the cheek and upper lip, because the infraorbital branch runs through the fractured floor. That numbness is often what reveals the fracture.",
   },
   nv_cranial: {
     name: 'Other cranial nerves',
@@ -162,6 +180,7 @@ export const NERVES = {
     desc: 'The remaining eleven pairs leaving the brain directly — smell, eye movement, facial expression, hearing and balance, taste, swallowing, and the wandering vagus.',
     fn: 'Wire the head and face, and through the vagus reach the heart, lungs, and gut.',
     note: 'The vagus is the outlier: it wanders far past the head, and most of its fibres report upward from the organs rather than sending commands down.',
+    sport: "A liver shot works partly through visceral afferents in the vagus, dropping heart rate and blood pressure and folding a fighter with no head trauma at all. Repeated ear trauma damages the structures behind the vestibular nerve, causing lasting dizziness.",
   },
   nv_sympathetic: {
     name: 'Autonomic chain',
@@ -170,6 +189,7 @@ export const NERVES = {
     desc: 'The paired sympathetic trunks — beaded chains of ganglia running the length of the spine — and the visceral nerves branching from them.',
     fn: 'Runs fight-or-flight: heart rate, blood vessel tone, sweating, pupil size, digestion.',
     note: 'None of it is under voluntary control, yet it adjusts continuously — this is the machinery behind a racing heart before you consciously register a fright.',
+    sport: "Blood chokes work on the carotid vessels and their baroreceptors, not the airway, and can produce unconsciousness in around ten seconds. The adrenaline surge that masks pain during a round is this system too, which is why injuries are often first felt in the locker room.",
   },
   nv_brachial: {
     name: 'Brachial plexus',
@@ -178,6 +198,7 @@ export const NERVES = {
     desc: 'Nerve roots C5–T1 braiding through trunks, divisions, and cords behind the collarbone before splitting into the arm’s main nerves.',
     fn: 'The single gateway for every nerve signal to and from the arm.',
     note: 'A hard shoulder-and-neck impact can wrench the upper roots — the "stinger" that leaves a burning arm for minutes after a tackle.',
+    sport: "The stinger or burner — the signature nerve injury of wrestling and football. A shoulder driven down while the neck bends away stretches the upper roots, giving a burning shock down one arm with brief weakness. Repeated stingers deserve investigation, not a shrug.",
   },
   nv_median: {
     name: 'Median nerve',
@@ -186,6 +207,7 @@ export const NERVES = {
     desc: 'Runs down the middle of the arm and passes through the carpal tunnel at the wrist alongside nine tendons.',
     fn: 'Drives most forearm flexors and thumb muscles; senses the palm side of the thumb, index, and middle fingers.',
     note: 'Squeezed in the carpal tunnel it produces the classic night-time tingling of the first three fingers — the commonest nerve entrapment there is.',
+    sport: "Wrist locks and long gripping bouts compress the median nerve at the wrist, giving the night-time tingling of the thumb, index and middle fingers.",
   },
   nv_ulnar: {
     name: 'Ulnar nerve',
@@ -194,6 +216,7 @@ export const NERVES = {
     desc: 'Passes behind the inner knob of the elbow, exposed just under the skin, then runs to the little-finger side of the hand.',
     fn: 'Powers most of the small hand muscles that grip and spread the fingers.',
     note: 'That exposed stretch at the elbow is the "funny bone" — hitting it fires straight into the ring and little fingers.',
+    sport: "Grapplers irritate the ulnar nerve at the elbow constantly — it sits exposed on the mat side of every elbow post, and kimura and armbar positions stretch it. Chronic numbness of the ring and little fingers is common in long-time BJJ players.",
   },
   nv_radial: {
     name: 'Radial & axillary nerves',
@@ -202,6 +225,7 @@ export const NERVES = {
     desc: 'The radial nerve spirals around the back of the humerus into the forearm; the axillary nerve wraps the shoulder to reach the deltoid.',
     fn: 'Straighten the elbow, wrist, and fingers; the axillary lifts the arm out sideways.',
     note: 'Falling asleep with an arm over a chair back can compress the radial nerve — "Saturday night palsy", a temporarily limp wrist.',
+    sport: "A humeral shaft fracture from an over-applied armbar, or prolonged compression under an opponent's weight, can leave a wrist drop that takes weeks to months to recover.",
   },
   nv_intercostal: {
     name: 'Chest wall nerves',
@@ -210,6 +234,7 @@ export const NERVES = {
     desc: 'Intercostal nerves running in the sheltered groove under each rib, plus the phrenic nerve descending from the neck to the diaphragm.',
     fn: 'Power the breathing muscles and carry sensation from the chest wall.',
     note: 'The phrenic starts in the neck (C3–C5) and travels all the way to the diaphragm, so a high neck injury can stop breathing outright.',
+    sport: "The pain after a rib injury is largely intercostal nerve pain: sharp with each breath, each rotation and each punch thrown, which is why rib injuries derail camps out of proportion to the imaging.",
   },
   nv_lumbar: {
     name: 'Lumbar plexus',
@@ -218,6 +243,7 @@ export const NERVES = {
     desc: 'Roots L1–L4 weaving inside the psoas muscle into the femoral, obturator, and saphenous nerves.',
     fn: 'Drive the front and inner thigh; the femoral nerve is what straightens your knee.',
     note: 'The saphenous branch runs to the inner ankle — the reason a knee problem can be felt low down the inside of the shin.',
+    sport: "A lumbar disc pressing on a root gives leg pain, not just back pain. In heavy lifters and wrestlers this is the usual reason a 'back injury' refuses to settle.",
   },
   nv_sciatic: {
     name: 'Sciatic nerve',
@@ -226,6 +252,7 @@ export const NERVES = {
     desc: 'The largest nerve in the body — about as thick as a thumb where it leaves the pelvis and runs beneath the glutes down the back of the thigh.',
     fn: 'Supplies the hamstrings and, through its branches, everything below the knee.',
     note: 'Irritated at its roots — usually by a lumbar disc — it refers pain down the whole limb: sciatica.',
+    sport: "Sciatica from a lumbar disc is the standard chronic complaint of grapplers with heavy training histories; deep piriformis tightness after long guard-playing sessions can mimic it.",
   },
   nv_tibial: {
     name: 'Tibial nerve',
@@ -234,6 +261,7 @@ export const NERVES = {
     desc: 'The larger branch of the sciatic, running down the back of the calf and behind the inner ankle into the sole.',
     fn: 'Powers the calf and the small muscles of the sole; senses the underside of the foot.',
     note: 'It passes through its own tight tunnel behind the inner ankle, where compression causes burning pain in the sole.',
+    sport: "Compressed behind the inner ankle after repeated heel impacts and ankle sprains, producing burning in the sole that barefoot mat training aggravates.",
   },
   nv_fibular: {
     name: 'Fibular nerves',
@@ -242,6 +270,7 @@ export const NERVES = {
     desc: 'The sciatic’s outer branch, winding around the neck of the fibula just under the skin before dividing across the shin and foot.',
     fn: 'Lift the foot and toes, and turn the sole outward.',
     note: 'Its exposed wrap around the fibula makes it the most commonly injured nerve in the leg — crossed legs or a tight cast can cause foot drop.',
+    sport: "The most exposed nerve in the leg, wrapping the fibula just under the skin at the outer knee. Heel hooks and knee dislocations can damage it, and a low kick landing there causes an instant dead-leg; injury shows as foot drop.",
   },
   nv_sacral: {
     name: 'Sacral plexus & pelvic nerves',
@@ -250,6 +279,7 @@ export const NERVES = {
     desc: 'Roots L4–S4 on the back wall of the pelvis, giving the gluteal nerves and the pudendal nerve.',
     fn: 'Power the buttock muscles that hold you level on one leg, and the pelvic floor.',
     note: 'Damage to the superior gluteal nerve shows up as a telltale hip drop on the opposite side with each step.',
+    sport: "Takes deep contusions in the buttock from mat and cage impacts. Weakness of the gluteal nerves shows up as a hip that drops on every step — a subtle but real drag on takedown power.",
   },
 };
 
@@ -268,6 +298,7 @@ export const TENDONS = {
     desc: 'The thickest and strongest tendon in the body, joining both calf muscles to the heel bone.',
     fn: 'Transmits the calf’s force to the heel — the spring behind every step, hop, and sprint.',
     note: 'It routinely carries loads of six to twelve times body weight when running, and its fibres spiral about 90° on the way down, which concentrates stress a few centimetres above the heel where ruptures occur.',
+    sport: "Ruptures on an explosive push-off, often with an audible pop and the sensation of being kicked in the heel. Heel hooks also load it hard. Repair plus rehabilitation typically takes the better part of a year before full return to competition.",
   },
   td_patellar: {
     name: 'Patellar tendon',
@@ -276,6 +307,7 @@ export const TENDONS = {
     desc: 'The continuation of the quadriceps tendon below the kneecap, anchoring into the shin, with the patellar retinacula fanning out either side.',
     fn: 'Delivers the quadriceps’ pull across the knee to straighten the leg.',
     note: 'Tap it and the leg kicks — the knee-jerk reflex, a signal that never reaches the brain before the muscle responds.',
+    sport: "Jumper's knee — patellar tendinopathy — comes from the constant level changes, sprawls and plyometric work in fight training, and it grumbles for months rather than tearing outright.",
   },
   td_cruciate: {
     name: 'Cruciate ligaments',
@@ -284,6 +316,7 @@ export const TENDONS = {
     desc: 'The anterior and posterior cruciates, crossing like an X in the middle of the knee joint.',
     fn: 'Stop the shin sliding forward or backward under the thigh bone, and control rotation.',
     note: 'The ACL usually tears without contact at all — a sudden decelerate-and-pivot — and because it heals poorly it is among the most reconstructed structures in sport.',
+    sport: "The ACL tears in twisting scrambles, hard takedowns and knee bars, usually without contact. It is among the most season-ending injuries in combat sport: reconstruction plus rehabilitation runs nine to twelve months, and the reinjury risk on return is real.",
   },
   td_kneecoll: {
     name: 'Knee collaterals & menisci',
@@ -292,6 +325,7 @@ export const TENDONS = {
     desc: 'The medial and lateral collateral ligaments guarding each side, plus the two C-shaped menisci cushioning the joint surfaces.',
     fn: 'Resist sideways forces and spread load across the knee.',
     note: 'The medial collateral is fused to the medial meniscus, so one blow to the outside of the knee often injures both at once.',
+    sport: "The MCL takes the sprawl and the knee-on-mat landing; the menisci tear when a planted foot twists during a shot. Meniscus damage is what turns into the chronic swollen knee of veteran wrestlers.",
   },
   td_ankleliga: {
     name: 'Ankle ligaments',
@@ -300,6 +334,7 @@ export const TENDONS = {
     desc: 'The three-part lateral complex on the outside and the broad deltoid ligament on the inside.',
     fn: 'Hold the talus in its socket while allowing the ankle to hinge.',
     note: 'Rolling the ankle inward strains the anterior talofibular ligament first — the single most common sprain in the body.',
+    sport: "The most common sprain in sport, and in grappling the lateral ligaments are also the tissue a heel hook attacks. Heel hooks are dangerous precisely because the knee and ankle ligaments fail before pain forces the tap.",
   },
   td_hipliga: {
     name: 'Hip ligaments',
@@ -308,6 +343,7 @@ export const TENDONS = {
     desc: 'The iliofemoral, pubofemoral, and ischiofemoral ligaments spiralling around the hip socket, plus the sacrotuberous and sacrospinous behind.',
     fn: 'Screw tight as you stand upright, locking the hip with barely any muscular effort.',
     note: 'The iliofemoral is the strongest ligament in the body, capable of holding around 350 kg — it is what lets you stand all day without tiring your hips.',
+    sport: "Deep guard positions and repeated end-range hip loading are associated with labral tears and femoroacetabular impingement in grapplers, giving a pinching groin pain that limits the shot.",
   },
   td_shoulderliga: {
     name: 'Shoulder ligaments',
@@ -316,6 +352,7 @@ export const TENDONS = {
     desc: 'The glenohumeral ligaments reinforcing the joint capsule, with the acromioclavicular and coracoclavicular ligaments strapping the collarbone down.',
     fn: 'Provide what little passive restraint the shoulder has.',
     note: 'A fall onto the point of the shoulder tears the acromioclavicular ligaments — the "separated shoulder", distinct from a dislocation.',
+    sport: "The kimura and americana load the shoulder's capsule and ligaments directly; a throw landing on the shoulder separates the AC joint. Labral tears from repeated arm-in positions are the reason many veterans cannot sleep on one side.",
   },
   td_spineliga: {
     name: 'Spinal ligaments',
@@ -324,6 +361,7 @@ export const TENDONS = {
     desc: 'The long anterior and posterior longitudinal ligaments running the length of the spine, the elastic ligamenta flava between the arches, and the interspinous and supraspinous ligaments behind.',
     fn: 'Bind the vertebrae together and limit how far the spine can bend.',
     note: 'The ligamenta flava are unusually rich in elastin — they stay under tension even at rest, helping to pull you back upright after a bend.',
+    sport: "Neck cranks and whiplash from slams sprain the spinal ligaments. Ligament injury heals slowly and leaves segments subtly loose, which is part of why chronic neck pain persists after the acute injury settles.",
   },
   td_elbowliga: {
     name: 'Elbow ligaments',
@@ -332,6 +370,7 @@ export const TENDONS = {
     desc: 'The collateral ligaments on each side and the annular ligament that loops around the head of the radius.',
     fn: 'Keep the hinge stable and hold the radius in place as it spins.',
     note: 'The annular loop is loose in small children, so a sharp pull on the arm can slip the radius out of it — "nursemaid’s elbow".',
+    sport: "The armbar's target. Hyperextension tears the collateral ligaments and joint capsule, and a fighter who refuses to tap can leave the cage with a joint that is unstable for months. Repeated submissions to armbars cause cumulative laxity.",
   },
   td_inguinal: {
     name: 'Inguinal ligament',
@@ -340,6 +379,7 @@ export const TENDONS = {
     desc: 'The rolled-under lower border of the external oblique aponeurosis, running from the hip bone to the pubis.',
     fn: 'Forms the floor of the inguinal canal and the boundary between abdomen and thigh.',
     note: 'It is the landmark that separates the two kinds of groin hernia — above it, inguinal; below it, femoral.',
+    sport: "Athletic pubalgia — the 'sports hernia' — is a tear of the tissue around this region from repeated explosive twisting and shooting. It is notoriously slow to diagnose and a common cause of vague, persistent groin pain in wrestlers.",
   },
   td_foottendon: {
     name: 'Foot tendons',
@@ -348,6 +388,7 @@ export const TENDONS = {
     desc: 'The tibialis, fibularis, and long toe tendons crossing the ankle to reach the foot.',
     fn: 'Lift, lower, and steer the foot, and support its arches.',
     note: 'Tibialis posterior slings under the arch like a stirrup; when it fails, the arch gradually collapses into a flat foot.',
+    sport: "Tibialis posterior and the long toe tendons take repeated strain from barefoot mat work and kicking. Kicking with the instep is what tears them.",
   },
 };
 
@@ -366,6 +407,7 @@ export const FASCIA = {
     desc: 'A diamond of layered sheets over the lower back, where the lats, glutes, and deep spinal muscles all take hold.',
     fn: 'Transfers force diagonally between one lat and the opposite glute — the body’s cross-brace.',
     note: 'That diagonal link is why a heavy carry in one hand is felt across the opposite lower back; it is densely supplied with nerve endings and a suspected source of non-specific back pain.',
+    sport: "The sheet that transfers force between one lat and the opposite glute — exactly the diagonal loading of a throw or a sprawl. Densely innervated, it is a suspected source of the non-specific low back pain so common in wrestlers.",
   },
   fs_lata: {
     name: 'Fascia lata',
@@ -374,6 +416,7 @@ export const FASCIA = {
     desc: 'The tough stocking wrapping the whole thigh and dividing it into compartments.',
     fn: 'Compresses the thigh muscles, improving their pump and force transfer.',
     note: 'Because it is inelastic, swelling inside a compartment has nowhere to go — the basis of compartment syndrome after a crush injury.',
+    sport: "Because this sleeve does not stretch, bleeding into the thigh after a deep contusion has nowhere to go. A hard dead leg that keeps worsening with rising pressure and tightness is a surgical emergency, not a bruise.",
   },
   fs_itband: {
     name: 'Iliotibial band',
@@ -382,6 +425,7 @@ export const FASCIA = {
     desc: 'The thickened outer stripe of the fascia lata, running from the hip crest to just below the knee.',
     fn: 'Stabilises the knee and hip in stance and stores elastic energy when running.',
     note: 'It is far too stiff to "stretch out" — around 1,500 N to lengthen it a single percent — so friction pain at the knee is treated by fixing hip control, not by stretching the band.',
+    sport: "Low kicks land directly on it, and its friction against the outer knee causes a chronic ache in fighters doing high running volume. It is far too stiff to stretch out, so management is hip strength, not foam rolling.",
   },
   fs_plantar: {
     name: 'Plantar fascia',
@@ -390,6 +434,7 @@ export const FASCIA = {
     desc: 'A fan of dense fascia from the heel bone forward into the toes.',
     fn: 'Supports the arch and tightens as the toes bend back, turning the foot into a rigid lever.',
     note: 'That windlass tightening is why plantar fasciitis hurts most on the first steps out of bed, when the tissue has shortened overnight.',
+    sport: "Barefoot mat and ring training loads the sole constantly. Plantar fasciitis hurts most on the first steps out of bed, and once established it commonly runs for months.",
   },
   fs_palmar: {
     name: 'Palmar fascia',
@@ -398,6 +443,7 @@ export const FASCIA = {
     desc: 'The tough triangular sheet just under the skin of the palm, with the thinner dorsal fascia on the back of the hand.',
     fn: 'Anchors the palm’s skin so a grip does not slide.',
     note: 'It can thicken into cords that pull the fingers into the palm — Dupuytren’s contracture, which most often takes the ring and little fingers.',
+    sport: "Gripping gis and hand wraps loads the palm's fascia; over years it can thicken into cords that pull the ring and little fingers toward the palm.",
   },
   fs_galea: {
     name: 'Galea aponeurotica',
@@ -406,6 +452,7 @@ export const FASCIA = {
     desc: 'The tendon sheet capping the skull, linking the forehead and back-of-head muscles into one sheet.',
     fn: 'Lets the scalp glide over the skull and raises the eyebrows.',
     note: 'It binds skin, fat, and muscle into a single layer, which is why scalp wounds gape open and bleed so freely.',
+    sport: "The layer behind the cut. Elbows and headbutts split the scalp and brow down to this sheet, and because it binds skin and muscle together the wounds gape and bleed hard — which is why cuts stop fights far more often than the underlying damage warrants.",
   },
   fs_abdominal: {
     name: 'Abdominal aponeuroses',
@@ -414,6 +461,7 @@ export const FASCIA = {
     desc: 'The flat tendon sheets of the abdominal wall — the rectus sheath enclosing the six-pack and the linea alba running down the midline.',
     fn: 'Wrap and brace the abdominal wall into one continuous corset.',
     note: 'The linea alba can stretch and separate in late pregnancy or with heavy lifting — diastasis recti, a gap rather than a tear.',
+    sport: "The tissue that fails in athletic pubalgia. Repeated explosive rotation and shooting strain the abdominal wall where it meets the groin, producing pain that is neither a true hernia nor a simple strain.",
   },
   fs_retinacula: {
     name: 'Retinacula',
@@ -422,6 +470,7 @@ export const FASCIA = {
     desc: 'Straps of thickened fascia bridging the front and back of the wrist and ankle.',
     fn: 'Hold the long tendons close to the joint so they cannot bowstring away when it bends.',
     note: 'The flexor retinaculum at the wrist forms the roof of the carpal tunnel — cutting it is the standard release operation.',
+    sport: "The straps that stop tendons bowstringing at the wrist and ankle. Taping and wraps essentially reinforce their job, which is why grapplers with chronic wrist pain tape before every session.",
   },
   fs_septa: {
     name: 'Intermuscular septa',
@@ -430,6 +479,7 @@ export const FASCIA = {
     desc: 'Sheets diving inward from the deep fascia to the bone, walling the limbs into compartments.',
     fn: 'Separate muscle groups and give them extra surface to attach to.',
     note: 'They define the compartments surgeons open in an emergency fasciotomy when pressure inside a limb rises dangerously.',
+    sport: "These walls create closed compartments, and that is the danger after a hard shin or forearm trauma: swelling inside a compartment raises pressure until circulation fails. Acute compartment syndrome needs surgical release within hours.",
   },
   fs_crural: {
     name: 'Crural fascia',
@@ -438,6 +488,7 @@ export const FASCIA = {
     desc: 'The deep fascia sleeve of the lower leg, continuous with the popliteal fascia behind the knee.',
     fn: 'Binds the calf muscles into compartments and assists the calf’s venous pump.',
     note: 'Each calf contraction squeezes the veins inside this sleeve and pushes blood uphill — the reason standing still makes the legs swell.',
+    sport: "Checked kicks and shin-on-shin trauma bleed into this tight sleeve. Most settle as bruises; the rare one that keeps building pressure is a compartment syndrome and an emergency.",
   },
   fs_armfascia: {
     name: 'Brachial fascia',
@@ -446,6 +497,7 @@ export const FASCIA = {
     desc: 'The deep fascia sleeve of the upper arm and forearm.',
     fn: 'Compartmentalises the arm’s flexors and extensors and transmits their force.',
     note: 'The bicipital aponeurosis fans off the biceps across this fascia, shielding the artery beneath — which is why blood is drawn safely just there at the elbow.',
+    sport: "The reason forearms 'pump' and grips fail late in a round — the sleeve limits how much the working muscle can swell.",
   },
   fs_pectoral: {
     name: 'Pectoral fascia',
@@ -454,6 +506,7 @@ export const FASCIA = {
     desc: 'The fascia over the pectoralis major, continuous with the deeper clavipectoral fascia and the deltoid fascia at the shoulder.',
     fn: 'Wraps the chest muscles and blends into the fascia of the arm and abdomen.',
     note: 'It runs continuously into the abdominal fascia below and the arm fascia beside — one of the clearest examples of fascia as a single body-wide web.',
+    sport: "Overlies the pec major, so it is the layer under the deep bruising and the visible hollow when that muscle tears off its insertion.",
   },
   fs_cervical: {
     name: 'Cervical fascia',
@@ -462,6 +515,7 @@ export const FASCIA = {
     desc: 'Concentric fascial sleeves wrapping the neck’s muscles, airway, and vessels.',
     fn: 'Organise the neck into compartments and let its structures slide as you swallow and turn.',
     note: 'The spaces between these layers run straight down into the chest, which is how a deep neck infection can descend into the mediastinum.',
+    sport: "Wraps the neck's muscles and vessels. Its layered spaces let deep infections track down into the chest, which is why a neglected infected mat burn on the neck is treated seriously.",
   },
   fs_sheaths: {
     name: 'Tendon sheaths',
@@ -470,6 +524,7 @@ export const FASCIA = {
     desc: 'Fluid-filled tubes wrapping the long tendons where they cross joints.',
     fn: 'Lubricate the tendons so they glide with almost no friction.',
     note: 'Inflame one at the thumb side of the wrist and the thumb hurts to move — de Quervain’s tenosynovitis.',
+    sport: "Long gripping sessions inflame the sheaths at the wrist and thumb, giving the tenosynovitis that makes gripping and even opening a door painful.",
   },
 };
 

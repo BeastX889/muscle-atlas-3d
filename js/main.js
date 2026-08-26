@@ -476,6 +476,11 @@ function select(id) {
   const noteEl = document.getElementById('infoNote');
   noteEl.hidden = !hasNote;
   noteEl.textContent = m.note ?? '';
+  const hasSport = !!m.sport;
+  document.getElementById('sportHead').hidden = !hasSport;
+  const sportEl = document.getElementById('infoSport');
+  sportEl.hidden = !hasSport;
+  sportEl.textContent = m.sport ?? '';
   const hasEx = !!m.bodyweight;
   document.getElementById('bwHead').hidden = !hasEx;
   document.getElementById('wtHead').hidden = !hasEx;

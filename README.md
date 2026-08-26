@@ -28,6 +28,13 @@ train it.
   armbar's effect on the elbow's collateral ligaments, checked low kicks
   and tibial fracture, the brachial plexus stinger, cumulative head
   trauma and CTE, rib cartilage injuries, ACL timelines.
+- **Injury map** — a toggle that recolors the active system by how
+  frequently each structure is injured in MMA, boxing and wrestling
+  (editorial three-level rating, with a legend).
+- **Layer peel** — a depth slider that strips the body down in
+  anatomical order: fascia → muscle → tendon → nerve → bone, with the
+  current layer fading to glass as you push through it. The part list
+  and picking follow the layer being revealed.
 - **Search** — one box over all 69 structures; matches names, Latin,
   and body text, so "ACL", "stinger", or "CTE" find the right part.
 - **Isolate mode** — one click turns everything but the selection to

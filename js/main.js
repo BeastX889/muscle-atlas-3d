@@ -15,6 +15,47 @@ const SYSTEM_DATA = {
   fascia: { label: 'Fascia', parts: FASCIA, order: FASCIA_ORDER },
 };
 
+// Relative injury frequency in combat sports (editorial, 1 low – 3 high),
+// driving the Injury map view.
+const RISK = {
+  traps: 2, delts: 3, pecs: 2, biceps: 2, triceps: 1, forearms: 2,
+  abs: 1, obliques: 2, lats: 1, lowback: 3, glutes: 1, quads: 3,
+  hams: 3, calves: 2,
+  sk_skull: 3, sk_spine: 3, sk_ribs: 3, sk_shoulder: 3, sk_arm: 1,
+  sk_forearm: 2, sk_hand: 3, sk_pelvis: 1, sk_femur: 1, sk_leg: 2, sk_foot: 2,
+  nv_cerebrum: 3, nv_deepbrain: 3, nv_cerebellum: 2, nv_brainstem: 2,
+  nv_cord: 2, nv_optic: 2, nv_trigeminal: 2, nv_cranial: 1,
+  nv_sympathetic: 1, nv_brachial: 3, nv_median: 2, nv_ulnar: 3,
+  nv_radial: 1, nv_intercostal: 2, nv_lumbar: 2, nv_sciatic: 3,
+  nv_tibial: 1, nv_fibular: 2, nv_sacral: 1,
+  td_achilles: 2, td_patellar: 2, td_cruciate: 3, td_kneecoll: 3,
+  td_ankleliga: 3, td_hipliga: 2, td_shoulderliga: 3, td_spineliga: 2,
+  td_elbowliga: 3, td_inguinal: 2, td_foottendon: 1,
+  fs_thoraco: 2, fs_lata: 1, fs_itband: 2, fs_plantar: 2, fs_palmar: 1,
+  fs_galea: 3, fs_abdominal: 2, fs_retinacula: 1, fs_septa: 1,
+  fs_crural: 2, fs_armfascia: 1, fs_pectoral: 1, fs_cervical: 1,
+  fs_sheaths: 2,
+};
+const HEAT_COL = { 3: 0xff5230, 2: 0xffa03c, 1: 0x8a8076 };
+const HEAT_EMI = { 3: 0.22, 2: 0.12, 1: 0 };
+let heatOn = false;
+
+// Layer-peel mode: outermost to innermost.
+const LAYERS = [
+  { sys: 'fascia', kinds: ['fascia'], label: 'Fascia' },
+  { sys: 'muscles', kinds: ['other'], label: 'Muscle' },
+  { sys: 'tendons', kinds: ['tendon', 'ligaments'], label: 'Tendon' },
+  { sys: 'nerves', kinds: ['nerves'], label: 'Nerve' },
+  { sys: 'skeleton', kinds: ['bones'], label: 'Bone' },
+];
+// Layer colors for systems that are context rather than the active tab.
+const LAYER_KIND_COL = {
+  other: 0x6b2a22, tendon: 0xd9cba6, ligaments: 0xc9bb98,
+  bones: 0xd6cbb2, fascia: 0xb3a894, nerves: 0xe8d894,
+};
+let layersMode = false;
+let layerDepth = 1;
+
 function systemOf(id) {
   if (id.startsWith('sk_')) return 'skeleton';
   if (id.startsWith('nv_')) return 'nerves';
@@ -362,6 +403,12 @@ function applyStyles() {
         m.color.lerp(new THREE.Color(pal.sel), 0.4);
         m.emissive.setHex(pal.glow);
         m.emissiveIntensity = 0.14;
+      } else if (heatOn) {
+        const r = RISK[id] ?? 1;
+        m.color.setHex(HEAT_COL[r]);
+        if (selectedId) m.color.multiplyScalar(0.35);
+        m.emissive.setHex(HEAT_COL[r]);
+        m.emissiveIntensity = selectedId ? 0.04 : HEAT_EMI[r];
       } else {
         m.color.setHex(selectedId ? pal.dim : pal.base);
         if (sys === 'nerves') {
@@ -410,6 +457,56 @@ function applyStyles() {
       for (const mat of mats) setGlass(mat, 0.06);
     }
   }
+
+  if (layersMode) applyLayerPeel();
+}
+
+// The peel: layers shallower than the depth are stripped away, the
+// current one fades as the slider pushes through it, the next reads
+// solid, and anything deeper waits as glass.
+function applyLayerPeel() {
+  const base = Math.min(4, Math.floor(layerDepth));
+  const frac = layerDepth - base;
+  LAYERS.forEach((L, i) => {
+    let vis = true;
+    let glass = null;
+    if (i < base) vis = false;
+    else if (i === base) glass = frac > 0.02 ? Math.max(0.06, 1 - frac) : null;
+    else if (i === base + 1) glass = null;
+    else glass = 0.1;
+
+    const pal = ACTIVE_PAL[L.sys];
+    for (const [id, meshes] of Object.entries(groupMeshes)) {
+      if (systemOf(id) !== L.sys) continue;
+      for (const mesh of meshes) mesh.visible = vis;
+      if (!vis) continue;
+      const mat = groupMats[id];
+      if (L.sys !== currentSystem) {
+        mat.color.setHex(pal.base);
+        mat.emissive.setScalar(0);
+        mat.emissiveIntensity = 0;
+        if (L.sys === 'nerves') {
+          mat.emissive.setHex(NERVE_EMISSIVE);
+          mat.emissiveIntensity = 0.9;
+        }
+      }
+      setGlass(mat, id === selectedId ? null : glass);
+    }
+    for (const kind of L.kinds) {
+      for (const mesh of (kindMeshes[kind] || [])) mesh.visible = vis;
+      for (const mat of (kindMats[kind] || [])) {
+        if (!vis) continue;
+        mat.color.setHex(LAYER_KIND_COL[kind]);
+        mat.emissive.setScalar(0);
+        mat.emissiveIntensity = 0;
+        if (kind === 'nerves') {
+          mat.emissive.setHex(NERVE_EMISSIVE);
+          mat.emissiveIntensity = 0.9;
+        }
+        setGlass(mat, glass);
+      }
+    }
+  });
 }
 
 // ---------- system tabs ----------
@@ -419,7 +516,7 @@ const tabButtons = {};
 for (const [sys, def] of Object.entries(SYSTEM_DATA)) {
   const btn = document.createElement('button');
   btn.textContent = def.label;
-  btn.addEventListener('click', () => setSystem(sys));
+  btn.addEventListener('click', () => { layersMode = false; setSystem(sys); });
   tabsEl.appendChild(btn);
   tabButtons[sys] = btn;
 }
@@ -606,6 +703,31 @@ document.getElementById('isolateBtn').addEventListener('click', () => {
   applyStyles();
 });
 
+// ---------- injury heat-map ----------
+const heatBtn = document.getElementById('heatBtn');
+const heatLegend = document.getElementById('heatLegend');
+heatBtn.addEventListener('click', () => {
+  heatOn = !heatOn;
+  heatBtn.classList.toggle('active', heatOn);
+  heatLegend.hidden = !heatOn;
+  applyStyles();
+});
+
+// ---------- layer-peel slider ----------
+const depthSlider = document.getElementById('depthSlider');
+const depthLabel = document.getElementById('depthLabel');
+
+depthSlider.addEventListener('input', () => {
+  layersMode = true;
+  layerDepth = depthSlider.value / 100;
+  const base = Math.min(4, Math.floor(layerDepth));
+  const frac = layerDepth - base;
+  const dom = frac < 0.5 ? base : Math.min(4, base + 1);
+  depthLabel.textContent = LAYERS[dom].label;
+  if (LAYERS[dom].sys !== currentSystem) setSystem(LAYERS[dom].sys);
+  else applyStyles();
+});
+
 // ---------- shareable URLs (#system/part) ----------
 // Captured before anything can overwrite it: setSystem() writes the
 // hash, and it runs during boot — after that, the arriving link is gone.
@@ -664,6 +786,7 @@ function renderSearch() {
     const b = document.createElement('button');
     b.innerHTML = `<span>${e.name}</span><span class="sys">${e.label}</span>`;
     b.addEventListener('click', () => {
+      layersMode = false;
       setSystem(e.sys);
       select(e.id);
       searchInput.value = '';
@@ -703,6 +826,7 @@ window.addEventListener('keydown', (e) => {
   if (e.target === searchInput || e.metaKey || e.ctrlKey || e.altKey) return;
   const sysKeys = Object.keys(SYSTEM_DATA);
   if (e.key >= '1' && e.key <= String(sysKeys.length)) {
+    layersMode = false;
     setSystem(sysKeys[+e.key - 1]);
   } else if (e.key === 'Escape') {
     select(null);

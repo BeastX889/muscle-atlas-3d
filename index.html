@@ -35,6 +35,11 @@
                autocomplete="off" spellcheck="false" aria-label="Search anatomy">
         <ul class="search-results" id="searchResults" hidden></ul>
       </div>
+      <div class="depth">
+        <div class="depth-head"><span>Layer peel</span><span id="depthLabel">Muscle</span></div>
+        <input type="range" id="depthSlider" min="0" max="400" value="100" step="1" aria-label="Peel depth">
+        <div class="depth-ticks"><span>Fascia</span><span>Muscle</span><span>Tendon</span><span>Nerve</span><span>Bone</span></div>
+      </div>
     </header>
 
     <nav class="muscle-list" id="muscleList" aria-label="Muscle groups"></nav>
@@ -67,6 +72,15 @@
     <div class="corner-tools">
       <button class="tool-btn" id="viewReset" title="Reset the camera (R)">Reset view</button>
       <button class="tool-btn" id="snapBtn" title="Save a PNG of the current view">Save image</button>
+      <button class="tool-btn" id="heatBtn" title="Color structures by combat-sport injury frequency">Injury map</button>
+    </div>
+
+    <div id="heatLegend" hidden>
+      <span class="hl-title">Injury frequency</span>
+      <span class="hl-row"><i style="--c:#ff5230"></i>Frequent</span>
+      <span class="hl-row"><i style="--c:#ffa03c"></i>Common</span>
+      <span class="hl-row"><i style="--c:#8a8076"></i>Less common</span>
+      <span class="hl-note">approximate &middot; MMA / boxing / wrestling</span>
     </div>
 
     <a class="credit" href="https://www.z-anatomy.com/" target="_blank" rel="noopener">

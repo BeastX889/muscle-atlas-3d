@@ -371,3 +371,8 @@ body:has(.info-card:not([hidden])) .view-reset { display: none; }
     padding: 5px 9px;
   }
 }
+
+/* the combat-sports section is the reason most people are here — let it
+   read as its own beat rather than another grey subheading */
+#sportHead { color: var(--accent); }
+#infoSport { color: var(--ink); }

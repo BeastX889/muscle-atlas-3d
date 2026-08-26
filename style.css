@@ -492,3 +492,87 @@ body {
   }
   .tool-btn { font-size: 10px; padding: 5px 9px; }
 }
+
+/* ---- layer-peel slider ---- */
+.depth {
+  margin-top: 18px;
+  pointer-events: auto;
+  width: min(260px, 62vw);
+}
+
+.depth-head {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+}
+.depth-head #depthLabel { color: var(--accent); }
+
+.depth input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  background: transparent;
+  cursor: pointer;
+}
+
+.depth-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-top: 2px;
+}
+
+/* ---- injury heat legend ---- */
+#heatBtn.active { color: var(--accent); border-color: var(--accent); }
+
+#heatLegend {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 46px;
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink);
+  z-index: 3;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+#heatLegend[hidden] { display: none; }
+#heatLegend .hl-title { color: var(--ink-dim); }
+#heatLegend .hl-note { color: var(--ink-dim); font-size: 9px; letter-spacing: 0.06em; }
+#heatLegend .hl-row { display: inline-flex; align-items: center; gap: 6px; }
+#heatLegend i {
+  width: 10px;
+  height: 10px;
+  background: var(--c);
+  display: inline-block;
+}
+
+@media (max-width: 720px) {
+  #heatLegend {
+    bottom: 118px;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px 14px;
+    max-width: calc(100vw - 24px);
+    white-space: normal;
+  }
+  #heatLegend .hl-note { width: 100%; text-align: center; }
+}

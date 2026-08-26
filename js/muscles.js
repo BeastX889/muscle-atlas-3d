@@ -8,6 +8,7 @@ export const MUSCLES = {
     fn: 'Elevates, retracts, and depresses the scapula; supports the arm and extends the neck.',
     bodyweight: ['Inverted rows', 'Pike shrugs', 'Wall handstand holds'],
     weights: ['Shrugs', 'Face pulls', 'Deadlifts', 'Farmer carries'],
+    sport: "Wrestlers build famously thick traps from bridging and collar ties, and the same region takes the classic 'burner' when a shoulder is driven down while the head snaps the other way. Trap and levator strains are routine after long clinch exchanges.",
   },
   delts: {
     name: 'Deltoids',
@@ -17,6 +18,7 @@ export const MUSCLES = {
     fn: 'Abducts the arm; the front head flexes and internally rotates it, the rear head extends and externally rotates it.',
     bodyweight: ['Pike push-ups', 'Handstand push-ups', 'Wall walks'],
     weights: ['Overhead press', 'Lateral raises', 'Rear-delt flyes'],
+    sport: "The most dislocated joint in combat sport. Kimuras, americanas and armbars load it near its end range, and posting a hand on a hard takedown drives the head of the humerus forward.",
   },
   pecs: {
     name: 'Pectorals',
@@ -26,6 +28,7 @@ export const MUSCLES = {
     fn: 'Adducts and internally rotates the arm; presses the arms forward and together.',
     bodyweight: ['Push-ups', 'Dips', 'Archer push-ups', 'Pseudo-planche push-ups'],
     weights: ['Bench press', 'Dumbbell flyes', 'Cable crossovers'],
+    sport: "Pec major tears at its insertion when the arm is forced backward against a maximal contraction — heavy bench work, defending an armbar, or a hook that misses and overextends. It shows as a tearing pop, deep bruising and a hollow at the armpit fold, and near-complete tears are usually repaired surgically.",
   },
   biceps: {
     name: 'Biceps',
@@ -35,6 +38,7 @@ export const MUSCLES = {
     fn: 'Flexes the elbow and supinates the forearm — turning the palm upward.',
     bodyweight: ['Chin-ups', 'Ring curls', 'Rope climbs'],
     weights: ['Barbell curls', 'Hammer curls', 'Incline curls'],
+    sport: "Distal biceps ruptures are a grappler's injury: a heavy pull on an underhook or gi grip, or resisting an armbar, against a flexed elbow. Retraction gives the 'Popeye' bulge.",
   },
   triceps: {
     name: 'Triceps',
@@ -44,6 +48,7 @@ export const MUSCLES = {
     fn: 'Extends the elbow, straightening the arm; the long head also assists shoulder extension.',
     bodyweight: ['Diamond push-ups', 'Bench dips', 'Bodyweight extensions'],
     weights: ['Close-grip bench', 'Cable pushdowns', 'Skullcrushers'],
+    sport: "Loaded constantly by straight punching and by posting to defend takedowns. True triceps tendon avulsion is rare, but overuse tendinopathy at the elbow is common in strikers.",
   },
   forearms: {
     name: 'Forearms',
@@ -53,6 +58,7 @@ export const MUSCLES = {
     fn: 'Flex and extend the wrist and fingers; drive grip strength and forearm rotation.',
     bodyweight: ['Dead hangs', 'Towel hangs', 'Fingertip push-ups'],
     weights: ['Wrist curls', 'Reverse curls', 'Grippers'],
+    sport: "Gi and wrist grips cause forearm pump and medial epicondylitis; hard blocks bruise the muscle bellies directly. Grip endurance fails before the shoulders in most grappling rounds.",
   },
   abs: {
     name: 'Abdominals',
@@ -62,6 +68,7 @@ export const MUSCLES = {
     fn: 'Flexes the spine, compresses the abdomen, and stabilizes the trunk under load.',
     bodyweight: ['Hanging leg raises', 'Planks', 'L-sits', 'Dragon flags'],
     weights: ['Cable crunches', 'Ab-wheel rollouts', 'Weighted sit-ups'],
+    sport: "Braced against knees and body kicks. Rectus strains and, more painfully, tears near the rib insertion make breathing and rotation hurt for weeks.",
   },
   obliques: {
     name: 'Obliques',
@@ -71,6 +78,7 @@ export const MUSCLES = {
     fn: 'Rotate and side-bend the trunk; brace the core against twisting forces.',
     bodyweight: ['Side planks', 'Windshield wipers', 'Hanging knee twists'],
     weights: ['Woodchoppers', 'Suitcase carries', 'Weighted Russian twists'],
+    sport: "Rotational punching strains the obliques the same way pitching does. A side abdominal tear ends camps quietly because every punch and every breath loads it.",
   },
   lats: {
     name: 'Lats',
@@ -80,6 +88,7 @@ export const MUSCLES = {
     fn: 'Pulls the arm down and back; adducts, extends, and internally rotates the shoulder.',
     bodyweight: ['Pull-ups', 'Australian pull-ups', 'Front lever rows'],
     weights: ['Lat pulldowns', 'Barbell rows', 'Dumbbell rows'],
+    sport: "The engine of the underhook, the pull in the clinch and the finish of a throw. Strains happen when an opponent rips an arm overhead while the lat is contracting.",
   },
   lowback: {
     name: 'Lower back',
@@ -89,6 +98,7 @@ export const MUSCLES = {
     fn: 'Extends and straightens the spine; keeps the torso upright and braced during lifts.',
     bodyweight: ['Supermans', 'Bird dogs', 'Reverse hyperextensions'],
     weights: ['Deadlifts', 'Back extensions', 'Good mornings'],
+    sport: "Wrestlers and grapplers carry the highest disc-injury load in sport: repeated flexion under compression in scrambles, stacks and heavy pulls. Chronic low-back pain is the single commonest complaint in senior wrestlers.",
   },
   glutes: {
     name: 'Glutes',
@@ -98,6 +108,7 @@ export const MUSCLES = {
     fn: 'Extends the hip — the primary driver in standing up, climbing, sprinting, and jumping.',
     bodyweight: ['Glute bridges', 'Single-leg hip thrusts', 'Step-ups'],
     weights: ['Barbell hip thrusts', 'Squats', 'Romanian deadlifts'],
+    sport: "Powers the sprawl, the shot and the hip escape. Weak glutes push the load into the lower back and hamstrings, which is where the injuries then show up.",
   },
   quads: {
     name: 'Quadriceps',
@@ -107,6 +118,7 @@ export const MUSCLES = {
     fn: 'Extends the knee; the rectus femoris head also flexes the hip.',
     bodyweight: ['Pistol squats', 'Bulgarian split squats', 'Wall sits', 'Sissy squats'],
     weights: ['Squats', 'Leg press', 'Leg extensions'],
+    sport: "The dead leg — a deep quad contusion from a knee or a low kick — is one of the commonest fight injuries. Repeated bleeding into the muscle risks myositis ossificans, where bone forms inside the bruise.",
   },
   hams: {
     name: 'Hamstrings',
@@ -116,6 +128,7 @@ export const MUSCLES = {
     fn: 'Flex the knee and extend the hip; decelerate the leg when sprinting.',
     bodyweight: ['Nordic curls', 'Sliding leg curls', 'Single-leg bridges'],
     weights: ['Romanian deadlifts', 'Leg curls', 'Good mornings'],
+    sport: "Strained during the shot and the sprawl, where the muscle lengthens under load. Hamstring tears are the classic recurrence injury: the reinjury rate in the first weeks back is high.",
   },
   calves: {
     name: 'Calves',
@@ -125,6 +138,7 @@ export const MUSCLES = {
     fn: 'Plantar-flex the ankle — pointing the foot to walk, run, and jump.',
     bodyweight: ['Single-leg calf raises', 'Jump rope', 'Pogo hops'],
     weights: ['Standing calf raises', 'Seated calf raises'],
+    sport: "Checked low kicks slam into the calf, and explosive level changes strain it. A sudden pop mid-round is often 'tennis leg' — a tear where the calf meets the Achilles.",
   },
 };
 

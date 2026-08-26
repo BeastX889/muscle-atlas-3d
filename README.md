@@ -23,13 +23,20 @@ train it.
   and fascia tabs, so structures inside it (the brain in the skull, the
   cruciates in the knee) are visible rather than buried; on the fascia
   tab the unpicked sleeves turn to glass around a selection.
+- **In combat sports** — every structure carries a section on how it
+  gets injured in MMA, wrestling and boxing, and what that costs: the
+  armbar's effect on the elbow's collateral ligaments, checked low kicks
+  and tibial fracture, the brachial plexus stinger, cumulative head
+  trauma and CTE, rib cartilage injuries, ACL timelines.
 - **Click to learn** — occlusion-aware picking; an anatomy card with
   Latin name, region, function, and exercise lists (bodyweight &
   calisthenics first, then weighted).
-- **Anatomy-plate look** — paper background, red muscles, cream bone
-  and tendon; selecting a group dims everything else.
-- **Zero build step** — plain ES modules with an import map; Three.js
-  and the Draco decoder load from CDNs. Works on any static host.
+- **Dark écorché look** — near-black scene, deep red musculature, cream
+  bone and tendon; selecting a structure lights it and dims the rest.
+- **No CDN, no build step** — plain ES modules with an import map;
+  Three.js and the Draco decoder are vendored in `vendor/`, so a blocked
+  or slow third-party host cannot leave the page without its anatomy.
+  Works on any static host.
 
 ## Run locally
 

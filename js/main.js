@@ -299,11 +299,6 @@ const kindMeshes = {};  // context kind -> [meshes]
 const pickables = [];   // every mesh, so rays respect occlusion
 let modelReady = false;
 
-const draco = new DRACOLoader();
-draco.setDecoderPath('./vendor/three/examples/jsm/libs/draco/gltf/');
-const loader = new GLTFLoader();
-loader.setDRACOLoader(draco);
-
 const loadingEl = document.getElementById('loading');
 const CTX_KINDS = ['other', 'tendon', 'ligaments', 'bones', 'fascia', 'nerves'];
 
@@ -314,7 +309,34 @@ function isPartId(name) {
   return false;
 }
 
-loader.load('assets/body.glb', (gltf) => {
+// A transient failure (a 503 on one decoder file, a dropped connection)
+// should not strand the page on the loading screen — retry with fresh
+// loaders, since DRACOLoader caches a rejected decoder promise.
+let loadAttempts = 0;
+function startLoad() {
+  loadAttempts++;
+  const draco = new DRACOLoader();
+  draco.setDecoderPath('./vendor/three/examples/jsm/libs/draco/gltf/');
+  const loader = new GLTFLoader();
+  loader.setDRACOLoader(draco);
+  loader.load('assets/body.glb', onModel, (evt) => {
+    if (!loadingEl || !evt.total) return;
+    window.__atlasProgress = true;
+    loadingEl.textContent =
+      `Loading anatomy… ${Math.round((evt.loaded / evt.total) * 100)}%`;
+  }, (err) => {
+    console.error('Model load failed (attempt ' + loadAttempts + ')', err);
+    if (loadAttempts < 3) {
+      if (loadingEl) loadingEl.textContent = 'Load hiccup — retrying…';
+      setTimeout(startLoad, 1500 * loadAttempts);
+    } else if (loadingEl) {
+      loadingEl.classList.add('stalled');
+      loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
+    }
+  });
+}
+
+function onModel(gltf) {
   window.__atlasReady = true;
   const proto = gltf.scene;
 
@@ -365,18 +387,9 @@ loader.load('assets/body.glb', (gltf) => {
   setSystem(currentSystem);
   applyHash();
   if (!userMoved) frameCamera();
-}, (evt) => {
-  if (!loadingEl || !evt.total) return;
-  window.__atlasProgress = true;
-  loadingEl.textContent =
-    `Loading anatomy… ${Math.round((evt.loaded / evt.total) * 100)}%`;
-}, (err) => {
-  console.error('Model load failed', err);
-  if (loadingEl) {
-    loadingEl.classList.add('stalled');
-    loadingEl.textContent = 'Could not load the 3D model — check your connection and reload.';
-  }
-});
+}
+
+startLoad();
 
 // ---------- selection / hover state ----------
 let currentSystem = 'muscles';

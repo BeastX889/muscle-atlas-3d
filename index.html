@@ -30,6 +30,11 @@
       <h1>Muscle<br>Atlas</h1>
       <p class="tagline">Interactive 3D human anatomy</p>
       <nav class="system-tabs" id="systemTabs" aria-label="Body systems"></nav>
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="Search anatomy&hellip;"
+               autocomplete="off" spellcheck="false" aria-label="Search anatomy">
+        <ul class="search-results" id="searchResults" hidden></ul>
+      </div>
     </header>
 
     <nav class="muscle-list" id="muscleList" aria-label="Muscle groups"></nav>
@@ -41,6 +46,7 @@
       <p class="info-region" id="infoRegion"></p>
       <h2 class="info-name" id="infoName"></h2>
       <p class="info-latin" id="infoLatin"></p>
+      <button class="isolate-btn" id="isolateBtn" title="Show only this structure">Isolate</button>
       <p class="info-desc" id="infoDesc"></p>
       <h3 class="info-sub">Function</h3>
       <p class="info-fn" id="infoFn"></p>
@@ -56,7 +62,12 @@
 
     <div id="loading">Loading anatomy&hellip;</div>
 
-    <button class="view-reset" id="viewReset" title="Reset the camera">Reset view</button>
+    <div id="tooltip" hidden></div>
+
+    <div class="corner-tools">
+      <button class="tool-btn" id="viewReset" title="Reset the camera (R)">Reset view</button>
+      <button class="tool-btn" id="snapBtn" title="Save a PNG of the current view">Save image</button>
+    </div>
 
     <a class="credit" href="https://www.z-anatomy.com/" target="_blank" rel="noopener">
       Model: Z-Anatomy / BodyParts3D &middot; CC BY-SA

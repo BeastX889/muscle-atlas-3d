@@ -28,6 +28,16 @@ train it.
   armbar's effect on the elbow's collateral ligaments, checked low kicks
   and tibial fracture, the brachial plexus stinger, cumulative head
   trauma and CTE, rib cartilage injuries, ACL timelines.
+- **Search** — one box over all 69 structures; matches names, Latin,
+  and body text, so "ACL", "stinger", or "CTE" find the right part.
+- **Isolate mode** — one click turns everything but the selection to
+  glass, on any tab.
+- **Shareable links** — the URL tracks the selection
+  (`#tendons/td_cruciate`), so a specific structure can be sent to
+  someone and opens pre-selected.
+- **Hover tooltips, keyboard control** (1–5 tabs, arrows cycle parts,
+  `/` to search, R resets the view, Esc closes), and a **Save image**
+  button that downloads a captioned PNG of the current view.
 - **Click to learn** — occlusion-aware picking; an anatomy card with
   Latin name, region, function, and exercise lists (bodyweight &
   calisthenics first, then weighted).

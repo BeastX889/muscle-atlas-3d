@@ -322,6 +322,7 @@ loader.load('assets/body.glb', (gltf) => {
   modelReady = true;
   if (loadingEl) loadingEl.remove();
   setSystem(currentSystem);
+  applyHash();
   if (!userMoved) frameCamera();
 }, (evt) => {
   if (!loadingEl || !evt.total) return;
@@ -340,6 +341,7 @@ loader.load('assets/body.glb', (gltf) => {
 let currentSystem = 'muscles';
 let selectedId = null;
 let hoveredId = null;
+let isolateOn = false;
 
 function applyStyles() {
   if (!modelReady) return;
@@ -396,6 +398,18 @@ function applyStyles() {
       mesh.visible = !selectedId;
     }
   }
+
+  // Isolate mode: everything except the selection becomes glass.
+  if (isolateOn && selectedId) {
+    for (const [id, mat] of Object.entries(groupMats)) {
+      if (id === selectedId) continue;
+      if (!groupMeshes[id]?.[0]?.visible) continue;
+      setGlass(mat, systemOf(id) === currentSystem ? 0.1 : 0.06);
+    }
+    for (const mats of Object.values(kindMats)) {
+      for (const mat of mats) setGlass(mat, 0.06);
+    }
+  }
 }
 
 // ---------- system tabs ----------
@@ -412,7 +426,9 @@ for (const [sys, def] of Object.entries(SYSTEM_DATA)) {
 
 function setSystem(sys) {
   currentSystem = sys;
+  isolateOn = false;
   document.body.dataset.system = sys;
+  updateHash();
   for (const [s, btn] of Object.entries(tabButtons)) {
     btn.classList.toggle('active', s === sys);
   }
@@ -457,7 +473,10 @@ document.getElementById('infoClose').addEventListener('click', () => select(null
 
 function select(id) {
   selectedId = id;
+  if (!id) isolateOn = false;
+  document.getElementById('isolateBtn').classList.toggle('active', isolateOn);
   applyStyles();
+  updateHash();
   for (const [pid, btn] of Object.entries(listButtons)) {
     btn.classList.toggle('active', pid === id);
   }
@@ -530,6 +549,8 @@ canvas.addEventListener('pointerup', (e) => {
   select(id === selectedId ? null : id);
 });
 
+const tooltip = document.getElementById('tooltip');
+
 canvas.addEventListener('pointermove', (e) => {
   if (e.pointerType !== 'mouse') return;
   const id = pick(e.clientX, e.clientY);
@@ -538,7 +559,18 @@ canvas.addEventListener('pointermove', (e) => {
     canvas.style.cursor = id ? 'pointer' : 'grab';
     applyStyles();
   }
+  if (id) {
+    tooltip.textContent = SYSTEM_DATA[currentSystem].parts[id].name;
+    tooltip.hidden = false;
+    tooltip.style.left = `${e.clientX + 14}px`;
+    tooltip.style.top = `${e.clientY + 12}px`;
+  } else {
+    tooltip.hidden = true;
+  }
 });
+
+canvas.addEventListener('pointerleave', () => { tooltip.hidden = true; });
+canvas.addEventListener('pointerdown', () => { tooltip.hidden = true; });
 
 // ---------- resize / loop ----------
 // Checked every frame rather than via the resize event — some embedded
@@ -561,10 +593,153 @@ document.body.dataset.system = 'muscles';
 tabButtons.muscles.classList.add('active');
 buildList();
 
-document.getElementById('viewReset').addEventListener('click', () => {
+function resetView() {
   userMoved = false;
   controls.autoRotate = true;
   frameCamera();
+}
+document.getElementById('viewReset').addEventListener('click', resetView);
+
+document.getElementById('isolateBtn').addEventListener('click', () => {
+  isolateOn = !isolateOn;
+  document.getElementById('isolateBtn').classList.toggle('active', isolateOn);
+  applyStyles();
+});
+
+// ---------- shareable URLs (#system/part) ----------
+// Captured before anything can overwrite it: setSystem() writes the
+// hash, and it runs during boot — after that, the arriving link is gone.
+const initialHash = location.hash;
+
+function updateHash() {
+  const h = selectedId ? `${currentSystem}/${selectedId}` : currentSystem;
+  history.replaceState(null, '', `#${h}`);
+}
+
+function applyHash() {
+  const [sys, id] = initialHash.replace(/^#/, '').split('/');
+  if (!SYSTEM_DATA[sys]) return;
+  setSystem(sys);
+  if (id && SYSTEM_DATA[sys].parts[id]) select(id);
+}
+
+// ---------- search ----------
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+const searchIndex = [];
+for (const [sys, def] of Object.entries(SYSTEM_DATA)) {
+  for (const id of def.order) {
+    const p = def.parts[id];
+    searchIndex.push({
+      id, sys, name: p.name, label: def.label,
+      head: `${p.name} ${p.latin} ${p.region}`.toLowerCase(),
+      body: `${p.desc ?? ''} ${p.fn ?? ''} ${p.note ?? ''} ${p.sport ?? ''}`.toLowerCase(),
+    });
+  }
+}
+
+function runSearch(q) {
+  q = q.trim().toLowerCase();
+  if (q.length < 2) return [];
+  const scored = [];
+  for (const e of searchIndex) {
+    let s = null;
+    if (e.name.toLowerCase().startsWith(q)) s = 0;
+    else if (e.head.includes(q)) s = 1;
+    else if (e.body.includes(q)) s = 2;   // catches "ACL", "stinger", "CTE"…
+    if (s !== null) scored.push([s, e]);
+  }
+  scored.sort((a, b) => a[0] - b[0]);
+  return scored.slice(0, 8).map((x) => x[1]);
+}
+
+function renderSearch() {
+  const hits = runSearch(searchInput.value);
+  searchResults.innerHTML = '';
+  searchResults.hidden = hits.length === 0;
+  hits.forEach((e, i) => {
+    const li = document.createElement('li');
+    if (i === 0) li.classList.add('hot');
+    const b = document.createElement('button');
+    b.innerHTML = `<span>${e.name}</span><span class="sys">${e.label}</span>`;
+    b.addEventListener('click', () => {
+      setSystem(e.sys);
+      select(e.id);
+      searchInput.value = '';
+      searchResults.hidden = true;
+    });
+    li.appendChild(b);
+    searchResults.appendChild(li);
+  });
+}
+
+searchInput.addEventListener('input', renderSearch);
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') searchResults.querySelector('button')?.click();
+  else if (e.key === 'Escape') {
+    searchInput.value = '';
+    searchResults.hidden = true;
+    searchInput.blur();
+  }
+});
+document.addEventListener('pointerdown', (e) => {
+  if (!e.target.closest('.search')) searchResults.hidden = true;
+});
+
+// ---------- keyboard ----------
+function cyclePart(dir) {
+  const order = SYSTEM_DATA[currentSystem].order
+    .filter((id) => !modelReady || groupMats[id]);
+  if (!order.length) return;
+  const i = order.indexOf(selectedId);
+  const next = i === -1
+    ? (dir > 0 ? 0 : order.length - 1)
+    : (i + dir + order.length) % order.length;
+  select(order[next]);
+}
+
+window.addEventListener('keydown', (e) => {
+  if (e.target === searchInput || e.metaKey || e.ctrlKey || e.altKey) return;
+  const sysKeys = Object.keys(SYSTEM_DATA);
+  if (e.key >= '1' && e.key <= String(sysKeys.length)) {
+    setSystem(sysKeys[+e.key - 1]);
+  } else if (e.key === 'Escape') {
+    select(null);
+  } else if (e.key === 'r' || e.key === 'R') {
+    resetView();
+  } else if (e.key === '/') {
+    searchInput.focus();
+    e.preventDefault();
+  } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+    cyclePart(1); e.preventDefault();
+  } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+    cyclePart(-1); e.preventDefault();
+  }
+});
+
+// ---------- snapshot ----------
+document.getElementById('snapBtn').addEventListener('click', () => {
+  // render synchronously so the buffer is fresh when it is copied
+  renderer.render(scene, camera);
+  const src = renderer.domElement;
+  const out = document.createElement('canvas');
+  out.width = src.width;
+  out.height = src.height;
+  const g = out.getContext('2d');
+  g.drawImage(src, 0, 0);
+  const part = selectedId
+    ? SYSTEM_DATA[currentSystem].parts[selectedId].name
+    : SYSTEM_DATA[currentSystem].label;
+  const pad = Math.round(out.width * 0.022);
+  g.font = `${Math.max(14, Math.round(out.width * 0.013))}px "Spline Sans Mono", Menlo, monospace`;
+  g.fillStyle = 'rgba(236, 232, 226, 0.8)';
+  g.textBaseline = 'bottom';
+  g.fillText(`MUSCLE ATLAS — ${part}`.toUpperCase(), pad, out.height - pad);
+  const a = document.createElement('a');
+  a.download = `muscle-atlas-${part}`.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.png';
+  a.href = out.toDataURL('image/png');
+  a.click();
 });
 
 renderer.setAnimationLoop(() => {

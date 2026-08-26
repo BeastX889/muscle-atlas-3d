@@ -265,10 +265,16 @@ body {
   line-height: 1.7;
 }
 
-.view-reset {
+.corner-tools {
   position: absolute;
   right: clamp(16px, 3vw, 48px);
-  bottom: clamp(64px, 9vh, 96px);
+  top: calc(clamp(20px, 4vh, 44px) + 26px);
+  display: flex;
+  gap: 8px;
+  z-index: 3;
+}
+
+.tool-btn {
   appearance: none;
   background: none;
   border: 1px solid var(--line);
@@ -279,13 +285,9 @@ body {
   text-transform: uppercase;
   padding: 7px 12px;
   cursor: pointer;
-  z-index: 3;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
-.view-reset:hover { color: var(--ink); border-color: var(--ink-dim); }
-
-/* the info card shares this corner — get out of its way */
-body:has(.info-card:not([hidden])) .view-reset { display: none; }
+.tool-btn:hover { color: var(--ink); border-color: var(--ink-dim); }
 
 .credit {
   position: absolute;
@@ -376,3 +378,117 @@ body:has(.info-card:not([hidden])) .view-reset { display: none; }
    read as its own beat rather than another grey subheading */
 #sportHead { color: var(--accent); }
 #infoSport { color: var(--ink); }
+
+
+/* ---- search ---- */
+.search {
+  position: relative;
+  margin-top: 16px;
+  pointer-events: auto;
+  width: min(260px, 62vw);
+}
+
+.search input {
+  width: 100%;
+  appearance: none;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  padding: 7px 2px;
+  outline: none;
+}
+.search input::placeholder { color: var(--ink-dim); }
+.search input:focus { border-bottom-color: var(--accent); }
+.search input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  list-style: none;
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--line);
+  max-height: 290px;
+  overflow-y: auto;
+  z-index: 6;
+}
+
+.search-results button {
+  appearance: none;
+  width: 100%;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font-family: var(--display);
+  font-variation-settings: "wdth" 84;
+  font-size: 13px;
+  text-align: left;
+  padding: 9px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+.search-results button:hover,
+.search-results li.hot button { background: rgba(255, 171, 74, 0.09); }
+
+.search-results .sys {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  flex: none;
+}
+
+/* ---- tooltip ---- */
+#tooltip {
+  position: fixed;
+  pointer-events: none;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 5px 9px;
+  z-index: 6;
+  white-space: nowrap;
+}
+
+/* ---- isolate ---- */
+.isolate-btn {
+  appearance: none;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  cursor: pointer;
+  margin-bottom: 4px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.isolate-btn:hover { color: var(--ink); }
+.isolate-btn.active { color: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 720px) {
+  .corner-tools {
+    top: clamp(20px, 4vh, 44px);
+    right: 8px;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .tool-btn { font-size: 10px; padding: 5px 9px; }
+}
